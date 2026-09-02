@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\igggrrr\\source\\repos\\AutoSalesApp\\AutoSalesApp\\AutoSalesApp.csproj": {}
+    "C:\\Users\\igggrrr\\source\\repos\\AvtoProject\\AutoSalesApp\\AutoSalesApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\igggrrr\\source\\repos\\AutoSalesApp\\AutoSalesApp\\AutoSalesApp.csproj": {
+    "C:\\Users\\igggrrr\\source\\repos\\AvtoProject\\AutoSalesApp\\AutoSalesApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\igggrrr\\source\\repos\\AutoSalesApp\\AutoSalesApp\\AutoSalesApp.csproj",
+        "projectUniqueName": "C:\\Users\\igggrrr\\source\\repos\\AvtoProject\\AutoSalesApp\\AutoSalesApp.csproj",
         "projectName": "AutoSalesApp",
-        "projectPath": "C:\\Users\\igggrrr\\source\\repos\\AutoSalesApp\\AutoSalesApp\\AutoSalesApp.csproj",
+        "projectPath": "C:\\Users\\igggrrr\\source\\repos\\AvtoProject\\AutoSalesApp\\AutoSalesApp.csproj",
         "packagesPath": "C:\\Users\\igggrrr\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\igggrrr\\source\\repos\\AutoSalesApp\\AutoSalesApp\\obj\\",
+        "outputPath": "C:\\Users\\igggrrr\\source\\repos\\AvtoProject\\AutoSalesApp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -90,7 +90,7 @@
             },
             "LiveChartsCore.SkiaSharpView.Avalonia": {
               "target": "Package",
-              "version": "[2.0.5, )"
+              "version": "[2.1.0-dev-798, )"
             },
             "Microsoft.Data.Sqlite": {
               "target": "Package",
@@ -99,6 +99,18 @@
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.4, )"
+            },
+            "SkiaSharp.NativeAssets.Linux": {
+              "target": "Package",
+              "version": "[4.151.1, )"
+            },
+            "SkiaSharp.NativeAssets.Win32": {
+              "target": "Package",
+              "version": "[4.151.1, )"
+            },
+            "SkiaSharp.NativeAssets.macOS": {
+              "target": "Package",
+              "version": "[4.151.1, )"
             },
             "iTextSharp.LGPLv2.Core": {
               "target": "Package",

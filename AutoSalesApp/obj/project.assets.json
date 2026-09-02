@@ -571,7 +571,7 @@
           }
         }
       },
-      "LiveChartsCore/2.0.5": {
+      "LiveChartsCore/2.1.0-dev-798": {
         "type": "package",
         "compile": {
           "lib/net8.0/LiveChartsCore.dll": {
@@ -584,10 +584,10 @@
           }
         }
       },
-      "LiveChartsCore.SkiaSharpView/2.0.5": {
+      "LiveChartsCore.SkiaSharpView/2.1.0-dev-798": {
         "type": "package",
         "dependencies": {
-          "LiveChartsCore": "2.0.5",
+          "LiveChartsCore": "2.1.0-dev-798",
           "SkiaSharp": "2.88.9",
           "SkiaSharp.HarfBuzz": "2.88.9"
         },
@@ -602,20 +602,20 @@
           }
         }
       },
-      "LiveChartsCore.SkiaSharpView.Avalonia/2.0.5": {
+      "LiveChartsCore.SkiaSharpView.Avalonia/2.1.0-dev-798": {
         "type": "package",
         "dependencies": {
-          "Avalonia": "11.0.0",
-          "Avalonia.Skia": "11.0.0",
-          "LiveChartsCore.SkiaSharpView": "2.0.5"
+          "Avalonia": "12.0.0",
+          "Avalonia.Skia": "12.0.0",
+          "LiveChartsCore.SkiaSharpView": "2.1.0-dev-798"
         },
         "compile": {
-          "lib/net8.0/LiveChartsCore.SkiaSharpView.Avalonia.dll": {
+          "lib/net10.0/LiveChartsCore.SkiaSharpView.Avalonia.dll": {
             "related": ".xml"
           }
         },
         "runtime": {
-          "lib/net8.0/LiveChartsCore.SkiaSharpView.Avalonia.dll": {
+          "lib/net10.0/LiveChartsCore.SkiaSharpView.Avalonia.dll": {
             "related": ".xml"
           }
         }
@@ -908,7 +908,7 @@
           }
         }
       },
-      "SkiaSharp.NativeAssets.Linux/3.119.4": {
+      "SkiaSharp.NativeAssets.Linux/4.151.1": {
         "type": "package",
         "compile": {
           "lib/net10.0/_._": {}
@@ -1955,10 +1955,10 @@
         "lib/netstandard2.0/iTextSharp.LGPLv2.Core.xml"
       ]
     },
-    "LiveChartsCore/2.0.5": {
-      "sha512": "cbGiOyGxO+fsWLvrQ4R6Rd8QHfkRGyhxyD6nBSk8/ZwKKtU+vWSqlC4ESgwKSUbrzvK8ooU/yfFJpjHXzPd+vA==",
+    "LiveChartsCore/2.1.0-dev-798": {
+      "sha512": "li2dRz6KwwJvcILkqcSetiIwfEknCV40f11mhljM7Qkrrzyyy9D+i3mF+a8Oc5wWjHb90pR8WAMiGzU3bWANnQ==",
       "type": "package",
-      "path": "livechartscore/2.0.5",
+      "path": "livechartscore/2.1.0-dev-798",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -1972,14 +1972,14 @@
         "lib/net8.0/LiveChartsCore.xml",
         "lib/netstandard2.0/LiveChartsCore.dll",
         "lib/netstandard2.0/LiveChartsCore.xml",
-        "livechartscore.2.0.5.nupkg.sha512",
+        "livechartscore.2.1.0-dev-798.nupkg.sha512",
         "livechartscore.nuspec"
       ]
     },
-    "LiveChartsCore.SkiaSharpView/2.0.5": {
-      "sha512": "YgRhisuVev2RocHqq7d9juSBGBlMLKYQA5ijEuD/sWeV39dCBInBK4RSfqBYTuNNWs5Fe+NA+F0TCIWJ2t1Cew==",
+    "LiveChartsCore.SkiaSharpView/2.1.0-dev-798": {
+      "sha512": "AG9Bxny/7EGoZhxCwbotl3anYoV5vk300X/HQiTkOiT1w2Irism7gOPuXJInPVdxqGNmlrDyM06oVCvdFJuvVA==",
       "type": "package",
-      "path": "livechartscore.skiasharpview/2.0.5",
+      "path": "livechartscore.skiasharpview/2.1.0-dev-798",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -1993,26 +1993,24 @@
         "lib/net8.0/LiveChartsCore.SkiaSharpView.xml",
         "lib/netstandard2.0/LiveChartsCore.SkiaSharpView.dll",
         "lib/netstandard2.0/LiveChartsCore.SkiaSharpView.xml",
-        "livechartscore.skiasharpview.2.0.5.nupkg.sha512",
+        "livechartscore.skiasharpview.2.1.0-dev-798.nupkg.sha512",
         "livechartscore.skiasharpview.nuspec"
       ]
     },
-    "LiveChartsCore.SkiaSharpView.Avalonia/2.0.5": {
-      "sha512": "gwqV/H5EWhk8KIwc8/4sdPVjsdJ5RpOC5Pfmd1lKIYltCntJQeZTcn1kC4mKykN+eU+BlT0W/grA3xioXdP7iA==",
+    "LiveChartsCore.SkiaSharpView.Avalonia/2.1.0-dev-798": {
+      "sha512": "O/fO9hcW68sbPRKe4WKCxCIYpZHBnogoN8hDS6WKhJ+nZJV9y5faTcEpiDvLQxWubdnbqumiTLDsViKeqg7i5g==",
       "type": "package",
-      "path": "livechartscore.skiasharpview.avalonia/2.0.5",
+      "path": "livechartscore.skiasharpview.avalonia/2.1.0-dev-798",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "README.md",
         "icon.png",
-        "lib/net6.0/LiveChartsCore.SkiaSharpView.Avalonia.dll",
-        "lib/net6.0/LiveChartsCore.SkiaSharpView.Avalonia.xml",
+        "lib/net10.0/LiveChartsCore.SkiaSharpView.Avalonia.dll",
+        "lib/net10.0/LiveChartsCore.SkiaSharpView.Avalonia.xml",
         "lib/net8.0/LiveChartsCore.SkiaSharpView.Avalonia.dll",
         "lib/net8.0/LiveChartsCore.SkiaSharpView.Avalonia.xml",
-        "lib/netstandard2.0/LiveChartsCore.SkiaSharpView.Avalonia.dll",
-        "lib/netstandard2.0/LiveChartsCore.SkiaSharpView.Avalonia.xml",
-        "livechartscore.skiasharpview.avalonia.2.0.5.nupkg.sha512",
+        "livechartscore.skiasharpview.avalonia.2.1.0-dev-798.nupkg.sha512",
         "livechartscore.skiasharpview.avalonia.nuspec"
       ]
     },
@@ -2560,10 +2558,10 @@
         "skiasharp.harfbuzz.nuspec"
       ]
     },
-    "SkiaSharp.NativeAssets.Linux/3.119.4": {
-      "sha512": "UAyVzbqNfZsZbKbzj68zXLyUyF/SbTKmzTfOO6qDu++dtIUMMTzPBe8oOuzU/DiewpfKoUUlOSsJmqWc6blxBw==",
+    "SkiaSharp.NativeAssets.Linux/4.151.1": {
+      "sha512": "4FM5fSV6W3nMOeawrxkgu3sf3uWUfQEizZ+ww6kcByf9XERiSbZftf5dyJxOUFDLcrtj9aslN2Jb7uZsO/lfWw==",
       "type": "package",
-      "path": "skiasharp.nativeassets.linux/3.119.4",
+      "path": "skiasharp.nativeassets.linux/4.151.1",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -2595,7 +2593,7 @@
         "runtimes/linux-riscv64/native/libSkiaSharp.so",
         "runtimes/linux-x64/native/libSkiaSharp.so",
         "runtimes/linux-x86/native/libSkiaSharp.so",
-        "skiasharp.nativeassets.linux.3.119.4.nupkg.sha512",
+        "skiasharp.nativeassets.linux.4.151.1.nupkg.sha512",
         "skiasharp.nativeassets.linux.nuspec"
       ]
     },
@@ -2978,9 +2976,12 @@
       "CommunityToolkit.Mvvm >= 8.4.2",
       "Dapper >= 2.1.79",
       "EPPlus >= 8.7.0",
-      "LiveChartsCore.SkiaSharpView.Avalonia >= 2.0.5",
+      "LiveChartsCore.SkiaSharpView.Avalonia >= 2.1.0-dev-798",
       "Microsoft.Data.Sqlite >= 10.0.11",
       "Newtonsoft.Json >= 13.0.4",
+      "SkiaSharp.NativeAssets.Linux >= 4.151.1",
+      "SkiaSharp.NativeAssets.Win32 >= 4.151.1",
+      "SkiaSharp.NativeAssets.macOS >= 4.151.1",
       "iTextSharp.LGPLv2.Core >= 3.8.5"
     ]
   },
@@ -2991,11 +2992,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\igggrrr\\source\\repos\\AutoSalesApp\\AutoSalesApp\\AutoSalesApp.csproj",
+      "projectUniqueName": "C:\\Users\\igggrrr\\source\\repos\\AvtoProject\\AutoSalesApp\\AutoSalesApp.csproj",
       "projectName": "AutoSalesApp",
-      "projectPath": "C:\\Users\\igggrrr\\source\\repos\\AutoSalesApp\\AutoSalesApp\\AutoSalesApp.csproj",
+      "projectPath": "C:\\Users\\igggrrr\\source\\repos\\AvtoProject\\AutoSalesApp\\AutoSalesApp.csproj",
       "packagesPath": "C:\\Users\\igggrrr\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\igggrrr\\source\\repos\\AutoSalesApp\\AutoSalesApp\\obj\\",
+      "outputPath": "C:\\Users\\igggrrr\\source\\repos\\AvtoProject\\AutoSalesApp\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -3074,7 +3075,7 @@
           },
           "LiveChartsCore.SkiaSharpView.Avalonia": {
             "target": "Package",
-            "version": "[2.0.5, )"
+            "version": "[2.1.0-dev-798, )"
           },
           "Microsoft.Data.Sqlite": {
             "target": "Package",
@@ -3083,6 +3084,18 @@
           "Newtonsoft.Json": {
             "target": "Package",
             "version": "[13.0.4, )"
+          },
+          "SkiaSharp.NativeAssets.Linux": {
+            "target": "Package",
+            "version": "[4.151.1, )"
+          },
+          "SkiaSharp.NativeAssets.Win32": {
+            "target": "Package",
+            "version": "[4.151.1, )"
+          },
+          "SkiaSharp.NativeAssets.macOS": {
+            "target": "Package",
+            "version": "[4.151.1, )"
           },
           "iTextSharp.LGPLv2.Core": {
             "target": "Package",

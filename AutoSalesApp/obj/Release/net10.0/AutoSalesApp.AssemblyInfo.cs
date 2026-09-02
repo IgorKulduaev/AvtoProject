@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AutoSalesApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dd1eb834e14388b61ad295d35624f4088fdf6e9c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b6c8dd5228647d52edb5984a0ab748b9d3d4f639")]
 [assembly: System.Reflection.AssemblyProductAttribute("AutoSalesApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AutoSalesApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
