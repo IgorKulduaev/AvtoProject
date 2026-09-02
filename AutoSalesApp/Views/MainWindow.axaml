@@ -1,4 +1,4 @@
-﻿<Window xmlns="https://github.com/avaloniaui"
+<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:AutoSalesApp.ViewModels"
         xmlns:v="using:AutoSalesApp.Views"
@@ -17,26 +17,26 @@
     <TabItem Header="Поставщики">
       <v:ProducerView DataContext="{Binding CurrentProducerView}"/>
     </TabItem>
-   <TabItem Header="Модели">
-  <v:ModelView DataContext="{Binding CurrentModelView}"/>
-</TabItem>
-   <TabItem Header="Клиенты">
-  <v:ClientView DataContext="{Binding CurrentClientView}"/>
-</TabItem>
+    <TabItem Header="Модели">
+      <v:ModelView DataContext="{Binding CurrentModelView}"/>
+    </TabItem>
+    <TabItem Header="Клиенты">
+      <v:ClientView DataContext="{Binding CurrentClientView}"/>
+    </TabItem>
     <TabItem Header="Прейскурант">
-      <TextBlock Text="Вкладка Прейскурант" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <v:PriceView DataContext="{Binding CurrentPriceView}"/>
     </TabItem>
     <TabItem Header="Продажи">
-      <TextBlock Text="Вкладка Продажи" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <v:SaleView DataContext="{Binding CurrentOrderView}"/>
     </TabItem>
     <TabItem Header="Отчёты">
-      <TextBlock Text="Вкладка Отчёты" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <v:ReportView DataContext="{Binding CurrentReportView}"/>
     </TabItem>
     <TabItem Header="Графики">
-      <TextBlock Text="Вкладка Графики" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <v:ChartView DataContext="{Binding CurrentChartView}"/>
     </TabItem>
     <TabItem Header="Импорт/Экспорт">
-      <TextBlock Text="Вкладка Импорт/Экспорт" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <v:ImportExportView DataContext="{Binding CurrentImportExportView}"/>
     </TabItem>
   </TabControl>
 

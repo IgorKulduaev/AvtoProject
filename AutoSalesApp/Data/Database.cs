@@ -64,7 +64,7 @@ public static class Database
                 PriceId INTEGER PRIMARY KEY AUTOINCREMENT,
                 ModelId INTEGER NOT NULL UNIQUE,
                 YearOfManufacture INTEGER NOT NULL,
-                Price REAL NOT NULL CHECK(Price >= 0),
+                Price REAL NOT NULL CHECK(Price > 0),
                 PrepCost REAL NOT NULL CHECK(PrepCost >= 0),
                 TransportCost REAL NOT NULL CHECK(TransportCost >= 0),
                 FOREIGN KEY (ModelId) REFERENCES Model(ModelId) ON DELETE RESTRICT
