@@ -18,10 +18,10 @@
         <TextBlock Grid.Column="0" Text="{Binding PriceId}" Margin="5"/>
         <TextBlock Grid.Column="1" Text="{Binding ModelName}" Margin="5"/>
         <TextBlock Grid.Column="2" Text="{Binding YearOfManufacture}" Margin="5"/>
-        <TextBlock Grid.Column="3" Text="{Binding Price, StringFormat='{}{0:N2} у.е.'}" Margin="5"/>
-        <TextBlock Grid.Column="4" Text="{Binding PrepCost, StringFormat='{}{0:N2} у.е.'}" Margin="5"/>
-        <TextBlock Grid.Column="5" Text="{Binding TransportCost, StringFormat='{}{0:N2} у.е.'}" Margin="5"/>
-        <TextBlock Grid.Column="6" Text="{Binding TotalCost, StringFormat='{}{0:N2} у.е.'}" Margin="5"/>
+        <TextBlock Grid.Column="3" Text="{Binding Price, StringFormat='\{0:N2\} у.е.'}" Margin="5"/>
+        <TextBlock Grid.Column="4" Text="{Binding PrepCost, StringFormat='\{0:N2\} у.е.'}" Margin="5"/>
+        <TextBlock Grid.Column="5" Text="{Binding TransportCost, StringFormat='\{0:N2\} у.е.'}" Margin="5"/>
+        <TextBlock Grid.Column="6" Text="{Binding TotalCost, StringFormat='\{0:N2\} у.е.'}" Margin="5"/>
       </Grid>
     </DataTemplate>
   </UserControl.Resources>
