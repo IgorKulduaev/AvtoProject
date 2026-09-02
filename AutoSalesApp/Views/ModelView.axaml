@@ -1,0 +1,88 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:AutoSalesApp.ViewModels"
+             xmlns:model="using:AutoSalesApp.Models"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AutoSalesApp.Views.ModelView"
+             x:DataType="vm:ModelViewModel">
+
+  <Design.DataContext>
+    <vm:ModelViewModel/>
+  </Design.DataContext>
+
+  <UserControl.Resources>
+    <DataTemplate x:Key="modelTemplate" DataType="model:Model">
+      <Grid ColumnDefinitions="50,100,150,80,120,80,120">
+        <TextBlock Grid.Column="0" Text="{Binding ModelId}" Margin="5"/>
+        <TextBlock Grid.Column="1" Text="{Binding ModelCode}" Margin="5"/>
+        <TextBlock Grid.Column="2" Text="{Binding ModelName}" Margin="5"/>
+        <TextBlock Grid.Column="3" Text="{Binding Color}" Margin="5"/>
+        <TextBlock Grid.Column="4" Text="{Binding MotorPower}" Margin="5"/>
+        <TextBlock Grid.Column="5" Text="{Binding DoorCount}" Margin="5"/>
+        <TextBlock Grid.Column="6" Text="{Binding Transmission}" Margin="5"/>
+      </Grid>
+    </DataTemplate>
+  </UserControl.Resources>
+
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <!-- Форма добавления -->
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10" Spacing="10">
+      <TextBox PlaceholderText="Код модели" Text="{Binding ModelCode}" Width="100"/>
+      <TextBox PlaceholderText="Название" Text="{Binding ModelName}" Width="150"/>
+      <TextBox PlaceholderText="Цвет" Text="{Binding Color}" Width="80"/>
+      <TextBox PlaceholderText="Обивка" Text="{Binding Upholstery}" Width="80"/>
+      <TextBox PlaceholderText="Мощность" Text="{Binding MotorPower}" Width="120"/>
+      <TextBox PlaceholderText="Двери" Text="{Binding DoorCount}" Width="60"/>
+      <ComboBox SelectedItem="{Binding Transmission}" Width="130">
+        <ComboBoxItem>механическая</ComboBoxItem>
+        <ComboBoxItem>автоматическая</ComboBoxItem>
+      </ComboBox>
+    </StackPanel>
+
+    <!-- Цена и поставщики -->
+    <Grid Grid.Row="1" Margin="10" ColumnDefinitions="*,*">
+      <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
+        <TextBox PlaceholderText="Год" Text="{Binding YearOfManufacture}" Width="60"/>
+        <TextBox PlaceholderText="Цена" Text="{Binding Price}" Width="80"/>
+        <TextBox PlaceholderText="Подготовка" Text="{Binding PrepCost}" Width="80"/>
+        <TextBox PlaceholderText="Транспорт" Text="{Binding TransportCost}" Width="80"/>
+      </StackPanel>
+      
+      <StackPanel Grid.Column="1">
+        <TextBlock Text="Поставщики (Ctrl+клик для множественного):" FontWeight="Bold"/>
+        <ListBox ItemsSource="{Binding Producers}" 
+                 SelectionMode="Multiple"
+                 Height="80">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding CompanyName}"/>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </StackPanel>
+    </Grid>
+
+    <!-- Список моделей -->
+    <ListBox Grid.Row="2" Margin="10"
+             ItemsSource="{Binding Models}"
+             ItemTemplate="{StaticResource modelTemplate}"
+             SelectedItem="{Binding SelectedModel}"/>
+
+    <!-- Кнопки -->
+    <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="10" Spacing="10">
+      <Button Content="Добавить" Command="{Binding AddCommand}"/>
+      <Button Content="Удалить выбранную" Command="{Binding DeleteCommand}"/>
+      <Button Content="Обновить" Command="{Binding RefreshCommand}"/>
+    </StackPanel>
+
+  </Grid>
+</UserControl>

@@ -1,0 +1,43 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AutoSalesApp.ViewModels"
+        xmlns:v="using:AutoSalesApp.Views"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+        x:Class="AutoSalesApp.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="AutoSalesApp" Width="1200" Height="800">
+
+  <Design.DataContext>
+    <vm:MainWindowViewModel />
+  </Design.DataContext>
+
+  <TabControl>
+    <TabItem Header="Поставщики">
+      <v:ProducerView DataContext="{Binding CurrentProducerView}"/>
+    </TabItem>
+   <TabItem Header="Модели">
+  <v:ModelView DataContext="{Binding CurrentModelView}"/>
+</TabItem>
+   <TabItem Header="Клиенты">
+  <v:ClientView DataContext="{Binding CurrentClientView}"/>
+</TabItem>
+    <TabItem Header="Прейскурант">
+      <TextBlock Text="Вкладка Прейскурант" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </TabItem>
+    <TabItem Header="Продажи">
+      <TextBlock Text="Вкладка Продажи" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </TabItem>
+    <TabItem Header="Отчёты">
+      <TextBlock Text="Вкладка Отчёты" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </TabItem>
+    <TabItem Header="Графики">
+      <TextBlock Text="Вкладка Графики" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </TabItem>
+    <TabItem Header="Импорт/Экспорт">
+      <TextBlock Text="Вкладка Импорт/Экспорт" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </TabItem>
+  </TabControl>
+
+</Window>

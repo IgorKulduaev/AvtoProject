@@ -1,0 +1,54 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:AutoSalesApp.ViewModels"
+             xmlns:model="using:AutoSalesApp.Models"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AutoSalesApp.Views.ClientView"
+             x:DataType="vm:ClientViewModel">
+
+  <Design.DataContext>
+    <vm:ClientViewModel/>
+  </Design.DataContext>
+
+  <UserControl.Resources>
+    <DataTemplate x:Key="clientTemplate" DataType="model:Client">
+      <Grid ColumnDefinitions="50,200,130,150">
+        <TextBlock Grid.Column="0" Text="{Binding ClientId}" Margin="5"/>
+        <TextBlock Grid.Column="1" Text="{Binding FIO}" Margin="5"/>
+        <TextBlock Grid.Column="2" Text="{Binding Phone}" Margin="5"/>
+        <TextBlock Grid.Column="3" Text="{Binding Address}" Margin="5"/>
+      </Grid>
+    </DataTemplate>
+  </UserControl.Resources>
+
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <!-- Форма добавления -->
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10" Spacing="10">
+      <TextBox PlaceholderText="Ф.И.О." Text="{Binding Fio}" Width="200"/>
+      <TextBox PlaceholderText="Телефон" Text="{Binding Phone}" Width="130"/>
+      <TextBox PlaceholderText="Адрес" Text="{Binding Address}" Width="150"/>
+      <Button Content="Добавить" Command="{Binding AddCommand}"/>
+    </StackPanel>
+
+    <!-- Список клиентов -->
+    <ListBox Grid.Row="1" Margin="10"
+             ItemsSource="{Binding Clients}"
+             ItemTemplate="{StaticResource clientTemplate}"
+             SelectedItem="{Binding SelectedClient}"/>
+
+    <!-- Кнопки -->
+    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10" Spacing="10">
+      <Button Content="Удалить выбранного" Command="{Binding DeleteCommand}"/>
+      <Button Content="Обновить" Command="{Binding RefreshCommand}"/>
+    </StackPanel>
+
+  </Grid>
+</UserControl>
