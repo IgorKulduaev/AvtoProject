@@ -18,8 +18,8 @@
         <TextBlock Grid.Column="0" Text="{Binding OrderNumber}" Margin="5"/>
         <TextBlock Grid.Column="1" Text="{Binding ClientFio}" Margin="5"/>
         <TextBlock Grid.Column="2" Text="{Binding ModelName}" Margin="5"/>
-        <TextBlock Grid.Column="3" Text="{Binding OrderDate, StringFormat='{}{0:dd.MM.yyyy}'}" Margin="5"/>
-        <TextBlock Grid.Column="4" Text="{Binding TotalCost, StringFormat='{}{0:N2} у.е.'}" Margin="5"/>
+        <TextBlock Grid.Column="3" Text="{Binding OrderDate, StringFormat='\{0:dd.MM.yyyy\}'}" Margin="5"/>
+        <TextBlock Grid.Column="4" Text="{Binding TotalCost, StringFormat='\{0:N2\} у.е.'}" Margin="5"/>
       </Grid>
     </DataTemplate>
   </UserControl.Resources>
@@ -60,7 +60,7 @@
                 <TextBlock Text="{Binding ModelName}" FontWeight="Bold"/>
                 <TextBlock FontSize="11">
                   <TextBlock.Text>
-                    <MultiBinding StringFormat="{}{0} — {1}, {2}, {3} г.">
+                    <MultiBinding StringFormat="\{0\} — \{1\}, \{2\}, \{3\} г.">
                       <Binding Path="Color"/>
                       <Binding Path="Transmission"/>
                       <Binding Path="YearOfManufacture"/>
