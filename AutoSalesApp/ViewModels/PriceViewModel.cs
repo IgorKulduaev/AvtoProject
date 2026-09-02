@@ -25,16 +25,16 @@ public partial class PriceViewModel : ObservableObject
     private Model? _selectedModel;
 
     [ObservableProperty]
-    private int _yearOfManufacture = DateTime.Now.Year;
+    private string _yearOfManufacture = DateTime.Now.Year.ToString();
 
     [ObservableProperty]
-    private decimal _price;
+    private string _price = string.Empty;
 
     [ObservableProperty]
-    private decimal _prepCost;
+    private string _prepCost = string.Empty;
 
     [ObservableProperty]
-    private decimal _transportCost;
+    private string _transportCost = string.Empty;
 
     [ObservableProperty]
     private string _errorMessage = string.Empty;
@@ -83,19 +83,20 @@ public partial class PriceViewModel : ObservableObject
             ErrorMessage = "Выберите модель";
             return;
         }
-        if (Price <= 0)
+        if (!TryParseMoney(Price, out decimal price) || price <= 0)
         {
-            ErrorMessage = "Цена должна быть больше 0";
+            ErrorMessage = "Цена: введите положительное число";
             return;
         }
-        if (PrepCost < 0 || TransportCost < 0)
+        if (!TryParseMoney(PrepCost, out decimal prepCost) || !TryParseMoney(TransportCost, out decimal transportCost)
+            || prepCost < 0 || transportCost < 0)
         {
-            ErrorMessage = "Предпродажная подготовка и транспортные издержки не могут быть отрицательными";
+            ErrorMessage = "Подготовка и транспорт: введите неотрицательные числа";
             return;
         }
-        if (YearOfManufacture > DateTime.Now.Year + 1)
+        if (!int.TryParse(YearOfManufacture, out int year) || year < 1950 || year > DateTime.Now.Year + 1)
         {
-            ErrorMessage = $"Год выпуска не может быть больше {DateTime.Now.Year + 1}";
+            ErrorMessage = "Год выпуска: введите корректный год (1950 – " + (DateTime.Now.Year + 1) + ")";
             return;
         }
 
@@ -114,11 +115,18 @@ public partial class PriceViewModel : ObservableObject
         connection.Execute(@"
             INSERT INTO PriceList (ModelId, YearOfManufacture, Price, PrepCost, TransportCost)
             VALUES (@ModelId, @YearOfManufacture, @Price, @PrepCost, @TransportCost)",
-            new { SelectedModel.ModelId, YearOfManufacture, Price, PrepCost, TransportCost });
+            new { SelectedModel.ModelId, YearOfManufacture = year, Price = price, PrepCost = prepCost, TransportCost = transportCost });
 
-        Price = PrepCost = TransportCost = 0;
-        YearOfManufacture = DateTime.Now.Year;
+        Price = PrepCost = TransportCost = string.Empty;
+        YearOfManufacture = DateTime.Now.Year.ToString();
         LoadPrices();
+    }
+
+    private static bool TryParseMoney(string? text, out decimal value)
+    {
+        text = (text ?? string.Empty).Trim().Replace(',', '.');
+        return decimal.TryParse(text, System.Globalization.NumberStyles.Any,
+            System.Globalization.CultureInfo.InvariantCulture, out value);
     }
 
     private void DeletePrice()

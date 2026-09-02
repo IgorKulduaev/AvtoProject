@@ -30,6 +30,7 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
@@ -41,20 +42,38 @@
       <TextBox PlaceholderText="Цвет" Text="{Binding Color}" Width="80"/>
       <TextBox PlaceholderText="Обивка" Text="{Binding Upholstery}" Width="80"/>
       <TextBox PlaceholderText="Мощность" Text="{Binding MotorPower}" Width="120"/>
-      <TextBox PlaceholderText="Двери" Text="{Binding DoorCount}" Width="60"/>
+      <TextBox PlaceholderText="Дверей (число)" Text="{Binding DoorCount}" Width="90"/>
       <ComboBox SelectedItem="{Binding Transmission}" Width="130">
         <ComboBoxItem>механическая</ComboBoxItem>
         <ComboBoxItem>автоматическая</ComboBoxItem>
       </ComboBox>
     </StackPanel>
 
+    <!-- Сообщение об ошибке -->
+    <TextBlock Grid.Row="1" Text="{Binding ErrorMessage}" Foreground="Red" Margin="10,0"/>
+
     <!-- Цена и поставщики -->
-    <Grid Grid.Row="1" Margin="10" ColumnDefinitions="*,*">
-      <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
-        <TextBox PlaceholderText="Год" Text="{Binding YearOfManufacture}" Width="60"/>
-        <TextBox PlaceholderText="Цена" Text="{Binding Price}" Width="80"/>
-        <TextBox PlaceholderText="Подготовка" Text="{Binding PrepCost}" Width="80"/>
-        <TextBox PlaceholderText="Транспорт" Text="{Binding TransportCost}" Width="80"/>
+    <Grid Grid.Row="2" Margin="10" ColumnDefinitions="*,*">
+      <StackPanel Grid.Column="0">
+        <TextBlock Text="Ценовые показатели (у.е.):" FontWeight="Bold"/>
+        <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
+          <StackPanel>
+            <TextBlock Text="Год выпуска" FontSize="11"/>
+            <TextBox Text="{Binding YearOfManufacture}" Width="90"/>
+          </StackPanel>
+          <StackPanel>
+            <TextBlock Text="Цена (у.е.)" FontSize="11"/>
+            <TextBox Text="{Binding Price}" Width="90"/>
+          </StackPanel>
+          <StackPanel>
+            <TextBlock Text="Подготовка (у.е.)" FontSize="11"/>
+            <TextBox Text="{Binding PrepCost}" Width="110"/>
+          </StackPanel>
+          <StackPanel>
+            <TextBlock Text="Транспорт (у.е.)" FontSize="11"/>
+            <TextBox Text="{Binding TransportCost}" Width="110"/>
+          </StackPanel>
+        </StackPanel>
       </StackPanel>
       
       <StackPanel Grid.Column="1">
@@ -72,13 +91,13 @@
     </Grid>
 
     <!-- Список моделей -->
-    <ListBox Grid.Row="2" Margin="10"
+    <ListBox Grid.Row="3" Margin="10"
              ItemsSource="{Binding Models}"
              ItemTemplate="{StaticResource modelTemplate}"
              SelectedItem="{Binding SelectedModel}"/>
 
     <!-- Кнопки -->
-    <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="10" Spacing="10">
+    <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="10" Spacing="10">
       <Button Content="Добавить" Command="{Binding AddCommand}"/>
       <Button Content="Удалить выбранную" Command="{Binding DeleteCommand}"/>
       <Button Content="Обновить" Command="{Binding RefreshCommand}"/>
