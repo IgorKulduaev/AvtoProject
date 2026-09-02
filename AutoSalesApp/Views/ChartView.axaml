@@ -1,0 +1,69 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:AutoSalesApp.ViewModels"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="950" d:DesignHeight="600"
+             x:Class="AutoSalesApp.Views.ChartView"
+             x:DataType="vm:ChartViewModel">
+
+  <Design.DataContext>
+    <vm:ChartViewModel/>
+  </Design.DataContext>
+
+  <Grid RowDefinitions="Auto,*">
+
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10" Spacing="10">
+      <Button Content="Обновить графики" Command="{Binding RefreshCommand}"/>
+    </StackPanel>
+
+    <ScrollViewer Grid.Row="1">
+      <StackPanel Margin="10" Spacing="20">
+
+        <!-- График 1: продажи по моделям -->
+        <StackPanel Spacing="5">
+          <TextBlock Text="Количество проданных автомобилей по моделям" FontWeight="Bold" FontSize="14"/>
+          <lvc:CartesianChart Series="{Binding ModelSalesSeries}"
+                              XAxes="{Binding ModelSalesXAxes}"
+                              YAxes="{Binding ModelSalesYAxes}"
+                              LegendPosition="Bottom"
+                              Height="320"/>
+          <Button Content="Сохранить в PNG" Command="{Binding SavePngCommand}" CommandParameter="models"/>
+        </StackPanel>
+
+        <!-- График 2: доля продаж по поставщикам -->
+        <StackPanel Spacing="5">
+          <TextBlock Text="Доля проданных автомобилей по поставщикам" FontWeight="Bold" FontSize="14"/>
+          <lvc:PieChart Series="{Binding ProducerShareSeries}"
+                        LegendPosition="Bottom"
+                        Height="320"/>
+          <Button Content="Сохранить в PNG" Command="{Binding SavePngCommand}" CommandParameter="producers"/>
+        </StackPanel>
+
+        <!-- График 3: динамика продаж по месяцам -->
+        <StackPanel Spacing="5">
+          <TextBlock Text="Динамика продаж по месяцам" FontWeight="Bold" FontSize="14"/>
+          <lvc:CartesianChart Series="{Binding MonthlySalesSeries}"
+                              XAxes="{Binding MonthlySalesXAxes}"
+                              YAxes="{Binding MonthlySalesYAxes}"
+                              LegendPosition="Bottom"
+                              Height="320"/>
+          <Button Content="Сохранить в PNG" Command="{Binding SavePngCommand}" CommandParameter="months"/>
+        </StackPanel>
+
+        <!-- График 4: распределение цен -->
+        <StackPanel Spacing="5">
+          <TextBlock Text="Распределение полной стоимости моделей" FontWeight="Bold" FontSize="14"/>
+          <lvc:CartesianChart Series="{Binding PriceHistogramSeries}"
+                              XAxes="{Binding PriceHistogramXAxes}"
+                              YAxes="{Binding PriceHistogramYAxes}"
+                              LegendPosition="Bottom"
+                              Height="320"/>
+          <Button Content="Сохранить в PNG" Command="{Binding SavePngCommand}" CommandParameter="prices"/>
+        </StackPanel>
+
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

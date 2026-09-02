@@ -1,0 +1,82 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:AutoSalesApp.ViewModels"
+             xmlns:model="using:AutoSalesApp.Models"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="500"
+             x:Class="AutoSalesApp.Views.PriceView"
+             x:DataType="vm:PriceViewModel">
+
+  <Design.DataContext>
+    <vm:PriceViewModel/>
+  </Design.DataContext>
+
+  <UserControl.Resources>
+    <DataTemplate x:Key="priceTemplate" DataType="model:PriceListItem">
+      <Grid ColumnDefinitions="60,200,90,110,130,130,130">
+        <TextBlock Grid.Column="0" Text="{Binding PriceId}" Margin="5"/>
+        <TextBlock Grid.Column="1" Text="{Binding ModelName}" Margin="5"/>
+        <TextBlock Grid.Column="2" Text="{Binding YearOfManufacture}" Margin="5"/>
+        <TextBlock Grid.Column="3" Text="{Binding Price, StringFormat='{}{0:N2} у.е.'}" Margin="5"/>
+        <TextBlock Grid.Column="4" Text="{Binding PrepCost, StringFormat='{}{0:N2} у.е.'}" Margin="5"/>
+        <TextBlock Grid.Column="5" Text="{Binding TransportCost, StringFormat='{}{0:N2} у.е.'}" Margin="5"/>
+        <TextBlock Grid.Column="6" Text="{Binding TotalCost, StringFormat='{}{0:N2} у.е.'}" Margin="5"/>
+      </Grid>
+    </DataTemplate>
+  </UserControl.Resources>
+
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <!-- Форма добавления -->
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10" Spacing="10">
+      <ComboBox PlaceholderText="Модель" Width="180"
+                ItemsSource="{Binding Models}"
+                SelectedItem="{Binding SelectedModel}">
+        <ComboBox.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding ModelName}"/>
+          </DataTemplate>
+        </ComboBox.ItemTemplate>
+      </ComboBox>
+      <TextBox PlaceholderText="Год выпуска" Text="{Binding YearOfManufacture}" Width="110"/>
+      <TextBox PlaceholderText="Цена (у.е.)" Text="{Binding Price}" Width="110"/>
+      <TextBox PlaceholderText="Подготовка" Text="{Binding PrepCost}" Width="110"/>
+      <TextBox PlaceholderText="Транспорт" Text="{Binding TransportCost}" Width="110"/>
+      <Button Content="Добавить" Command="{Binding AddCommand}"/>
+    </StackPanel>
+
+    <TextBlock Grid.Row="1" Text="{Binding ErrorMessage}" Foreground="Red" Margin="10,0"/>
+
+    <!-- Заголовок таблицы -->
+    <Grid Grid.Row="2" ColumnDefinitions="60,200,90,110,130,130,130" Margin="10,10,10,0">
+      <TextBlock Grid.Column="0" Text="Код" FontWeight="Bold"/>
+      <TextBlock Grid.Column="1" Text="Модель" FontWeight="Bold"/>
+      <TextBlock Grid.Column="2" Text="Год" FontWeight="Bold"/>
+      <TextBlock Grid.Column="3" Text="Цена" FontWeight="Bold"/>
+      <TextBlock Grid.Column="4" Text="Подготовка" FontWeight="Bold"/>
+      <TextBlock Grid.Column="5" Text="Транспорт" FontWeight="Bold"/>
+      <TextBlock Grid.Column="6" Text="Полная стоимость" FontWeight="Bold"/>
+    </Grid>
+
+    <!-- Список -->
+    <ListBox Grid.Row="3" Margin="10"
+             ItemsSource="{Binding Prices}"
+             ItemTemplate="{StaticResource priceTemplate}"
+             SelectedItem="{Binding SelectedPrice}"/>
+
+    <!-- Кнопки -->
+    <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="10" Spacing="10">
+      <Button Content="Удалить выбранный" Command="{Binding DeleteCommand}"/>
+      <Button Content="Обновить" Command="{Binding RefreshCommand}"/>
+    </StackPanel>
+
+  </Grid>
+</UserControl>

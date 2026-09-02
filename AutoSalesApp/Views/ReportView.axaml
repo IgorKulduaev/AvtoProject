@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:AutoSalesApp.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="950" d:DesignHeight="500"
+             x:Class="AutoSalesApp.Views.ReportView"
+             x:DataType="vm:ReportViewModel">
+
+  <Design.DataContext>
+    <vm:ReportViewModel/>
+  </Design.DataContext>
+
+  <Grid RowDefinitions="Auto,*">
+
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10" Spacing="10">
+      <ComboBox PlaceholderText="Выберите отчёт" Width="250"
+                ItemsSource="{Binding ReportNames}"
+                SelectedIndex="{Binding SelectedReportIndex}"/>
+    </StackPanel>
+
+    <DataGrid x:Name="ReportGrid" Grid.Row="1" Margin="10"
+              ItemsSource="{Binding Rows}"
+              IsReadOnly="True"
+              AutoGenerateColumns="False"/>
+
+  </Grid>
+</UserControl>

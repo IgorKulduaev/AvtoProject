@@ -1,0 +1,114 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:AutoSalesApp.ViewModels"
+             xmlns:model="using:AutoSalesApp.Models"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="500"
+             x:Class="AutoSalesApp.Views.SaleView"
+             x:DataType="vm:SaleViewModel">
+
+  <Design.DataContext>
+    <vm:SaleViewModel/>
+  </Design.DataContext>
+
+  <UserControl.Resources>
+    <DataTemplate x:Key="orderTemplate" DataType="model:OrderItem">
+      <Grid ColumnDefinitions="90,250,200,130,150">
+        <TextBlock Grid.Column="0" Text="{Binding OrderNumber}" Margin="5"/>
+        <TextBlock Grid.Column="1" Text="{Binding ClientFio}" Margin="5"/>
+        <TextBlock Grid.Column="2" Text="{Binding ModelName}" Margin="5"/>
+        <TextBlock Grid.Column="3" Text="{Binding OrderDate, StringFormat='{}{0:dd.MM.yyyy}'}" Margin="5"/>
+        <TextBlock Grid.Column="4" Text="{Binding TotalCost, StringFormat='{}{0:N2} у.е.'}" Margin="5"/>
+      </Grid>
+    </DataTemplate>
+  </UserControl.Resources>
+
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <!-- Форма продажи -->
+    <StackPanel Grid.Row="0" Margin="10" Spacing="8">
+
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <ComboBox PlaceholderText="Клиент (Ф.И.О.)" Width="250"
+                  ItemsSource="{Binding Clients}"
+                  SelectedItem="{Binding SelectedClient}">
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel>
+                <TextBlock Text="{Binding FIO}" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Phone}" FontSize="11"/>
+                <TextBlock Text="{Binding Address}" FontSize="11"/>
+              </StackPanel>
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <ComboBox PlaceholderText="Модель" Width="250"
+                  ItemsSource="{Binding Models}"
+                  SelectedItem="{Binding SelectedModel}">
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel>
+                <TextBlock Text="{Binding ModelName}" FontWeight="Bold"/>
+                <TextBlock FontSize="11">
+                  <TextBlock.Text>
+                    <MultiBinding StringFormat="{}{0} — {1}, {2}, {3} г.">
+                      <Binding Path="Color"/>
+                      <Binding Path="Transmission"/>
+                      <Binding Path="YearOfManufacture"/>
+                    </MultiBinding>
+                  </TextBlock.Text>
+                </TextBlock>
+              </StackPanel>
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <DatePicker SelectedDate="{Binding OrderDate}" Width="160"/>
+        <TextBox PlaceholderText="№ договора" Text="{Binding OrderNumber}" Width="110"/>
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <TextBlock VerticalAlignment="Center" FontWeight="Bold">
+          <TextBlock.Text>
+            <MultiBinding StringFormat="Полная стоимость: {0:N2} у.е.">
+              <Binding Path="TotalCost"/>
+            </MultiBinding>
+          </TextBlock.Text>
+        </TextBlock>
+        <Button Content="Оформить продажу" Command="{Binding SellCommand}"/>
+      </StackPanel>
+    </StackPanel>
+
+    <TextBlock Grid.Row="1" Text="{Binding ErrorMessage}" Foreground="Red" Margin="10,0"/>
+
+    <!-- Заголовок таблицы -->
+    <Grid Grid.Row="2" ColumnDefinitions="90,250,200,130,150" Margin="10,10,10,0">
+      <TextBlock Grid.Column="0" Text="Договор" FontWeight="Bold"/>
+      <TextBlock Grid.Column="1" Text="Клиент" FontWeight="Bold"/>
+      <TextBlock Grid.Column="2" Text="Модель" FontWeight="Bold"/>
+      <TextBlock Grid.Column="3" Text="Дата" FontWeight="Bold"/>
+      <TextBlock Grid.Column="4" Text="Стоимость" FontWeight="Bold"/>
+    </Grid>
+
+    <!-- Список продаж -->
+    <ListBox Grid.Row="3" Margin="10"
+             ItemsSource="{Binding Orders}"
+             ItemTemplate="{StaticResource orderTemplate}"
+             SelectedItem="{Binding SelectedOrder}"/>
+
+    <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="10" Spacing="10">
+      <Button Content="Удалить выбранную" Command="{Binding DeleteCommand}"/>
+      <Button Content="Обновить" Command="{Binding RefreshCommand}"/>
+    </StackPanel>
+
+  </Grid>
+</UserControl>
