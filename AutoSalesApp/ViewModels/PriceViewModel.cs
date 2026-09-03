@@ -6,8 +6,7 @@ using AutoSalesApp.Data;
 using AutoSalesApp.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Dapper;
-
+using Microsoft.EntityFrameworkCore;
 namespace AutoSalesApp.ViewModels;
 
 public partial class PriceViewModel : ObservableObject
@@ -45,36 +44,39 @@ public partial class PriceViewModel : ObservableObject
 
     public PriceViewModel()
     {
-        AddCommand = new RelayCommand(AddPrice);
-        DeleteCommand = new RelayCommand(DeletePrice, () => SelectedPrice != null);
-        RefreshCommand = new RelayCommand(LoadPrices);
-        LoadPrices();
+        AddCommand = new RelayCommand(Add);
+        DeleteCommand = new RelayCommand(Delete, () => SelectedPrice != null);
+        RefreshCommand = new RelayCommand(Load);
+        Load();
         LoadModels();
     }
 
-    private void LoadPrices()
+    private void Load()
     {
-        using var connection = Database.GetConnection();
-        connection.Open();
-        var list = connection.Query<PriceListItem>(@"
-            SELECT p.PriceId, p.ModelId, m.ModelName, p.YearOfManufacture,
-                   p.Price, p.PrepCost, p.TransportCost,
-                   (p.Price + p.PrepCost + p.TransportCost) AS TotalCost
-            FROM PriceList p
-            JOIN Model m ON m.ModelId = p.ModelId
-            ORDER BY p.PriceId").ToList();
-        Prices = new ObservableCollection<PriceListItem>(list);
+        using var db = new AppDbContext();
+        var prices = db.PriceLists.Include(p => p.Model).ToList();
+        var rows = prices.Select(p => new PriceListItem
+        {
+            PriceId = p.PriceId,
+            ModelId = p.ModelId,
+            ModelName = p.Model?.ModelName ?? string.Empty,
+            YearOfManufacture = p.YearOfManufacture,
+            Price = p.Price,
+            PrepCost = p.PrepCost,
+            TransportCost = p.TransportCost,
+            TotalCost = p.Price + p.PrepCost + p.TransportCost
+        }).OrderBy(i => i.PriceId).ToList();
+        Prices = new ObservableCollection<PriceListItem>(rows);
     }
 
     private void LoadModels()
     {
-        using var connection = Database.GetConnection();
-        connection.Open();
-        var list = connection.Query<Model>("SELECT * FROM Model ORDER BY ModelName").ToList();
+        using var db = new AppDbContext();
+        var list = db.Models.OrderBy(m => m.ModelName).ToList();
         Models = new ObservableCollection<Model>(list);
     }
 
-    private void AddPrice()
+    private void Add()
     {
         ErrorMessage = string.Empty;
 
@@ -96,30 +98,31 @@ public partial class PriceViewModel : ObservableObject
         }
         if (!int.TryParse(YearOfManufacture, out int year) || year < 1950 || year > DateTime.Now.Year + 1)
         {
-            ErrorMessage = "Год выпуска: введите корректный год (1950 – " + (DateTime.Now.Year + 1) + ")";
+            ErrorMessage = "Год выпуска: введите корректный год (1950 – {0}".Replace("{0}", (DateTime.Now.Year + 1).ToString()) + ")";
             return;
         }
 
-        using var connection = Database.GetConnection();
-        connection.Open();
-
-        var exists = connection.ExecuteScalar<int>(
-            "SELECT COUNT(*) FROM PriceList WHERE ModelId = @ModelId",
-            new { SelectedModel.ModelId });
-        if (exists > 0)
+        using var db = new AppDbContext();
+        var exists = db.PriceLists.Any(p => p.ModelId == SelectedModel.ModelId);
+        if (exists)
         {
             ErrorMessage = "Для этой модели уже есть прейскурант (связь 1:1)";
             return;
         }
 
-        connection.Execute(@"
-            INSERT INTO PriceList (ModelId, YearOfManufacture, Price, PrepCost, TransportCost)
-            VALUES (@ModelId, @YearOfManufacture, @Price, @PrepCost, @TransportCost)",
-            new { SelectedModel.ModelId, YearOfManufacture = year, Price = price, PrepCost = prepCost, TransportCost = transportCost });
+        db.PriceLists.Add(new PriceList
+        {
+            ModelId = SelectedModel.ModelId,
+            YearOfManufacture = year,
+            Price = price,
+            PrepCost = prepCost,
+            TransportCost = transportCost
+        });
+        db.SaveChanges();
 
         Price = PrepCost = TransportCost = string.Empty;
         YearOfManufacture = DateTime.Now.Year.ToString();
-        LoadPrices();
+        Load();
     }
 
     private static bool TryParseMoney(string? text, out decimal value)
@@ -129,14 +132,18 @@ public partial class PriceViewModel : ObservableObject
             System.Globalization.CultureInfo.InvariantCulture, out value);
     }
 
-    private void DeletePrice()
+    private void Delete()
     {
         if (SelectedPrice == null) return;
 
-        using var connection = Database.GetConnection();
-        connection.Open();
-        connection.Execute("DELETE FROM PriceList WHERE PriceId = @Id", new { Id = SelectedPrice.PriceId });
-        LoadPrices();
+        using var db = new AppDbContext();
+        var item = db.PriceLists.FirstOrDefault(p => p.PriceId == SelectedPrice.PriceId);
+        if (item != null)
+        {
+            db.PriceLists.Remove(item);
+            db.SaveChanges();
+        }
+        Load();
     }
 
     partial void OnSelectedPriceChanged(PriceListItem? value)

@@ -1,3 +1,5 @@
+using AutoSalesApp.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -6,7 +8,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using AutoSalesApp.Data;
-using Dapper;
 using Newtonsoft.Json.Linq;
 using OfficeOpenXml;
 
@@ -36,8 +37,7 @@ public static class ImportService
     {
         var result = new ImportResult();
         var lines = File.ReadAllLines(path);
-        using var connection = Database.GetConnection();
-        connection.Open();
+        using var db = new AppDbContext();
 
         for (int i = 1; i < lines.Length; i++) // пропускаем заголовок
         {
@@ -48,10 +48,10 @@ public static class ImportService
             {
                 switch (entity)
                 {
-                    case "producers": ImportProducerCsv(connection, cells); break;
-                    case "models": ImportModelCsv(connection, cells); break;
-                    case "clients": ImportClientCsv(connection, cells); break;
-                    case "pricelist": ImportPriceCsv(connection, cells); break;
+                    case "producers": ImportProducerCsv(db, cells); break;
+                    case "models": ImportModelCsv(db, cells); break;
+                    case "clients": ImportClientCsv(db, cells); break;
+                    case "pricelist": ImportPriceCsv(db, cells); break;
                 }
                 result.Imported++;
             }
@@ -63,34 +63,31 @@ public static class ImportService
         return result;
     }
 
-    private static void ImportProducerCsv(Microsoft.Data.Sqlite.SqliteConnection db, string[] c)
+    private static void ImportProducerCsv(AppDbContext db, string[] c)
     {
         Require(c, 4, "Код;Название;Телефон;Email;Web-сайт");
         ValidateEmail(c[3]);
-        db.Execute(
-            "INSERT INTO Producer (CompanyCode, CompanyName, Phone, Email, Website) VALUES (@code, @name, @phone, @email, @site)",
-            new { code = c[0], name = c[1], phone = c[2], email = c[3], site = c.Length > 4 && c[4] != "" ? c[4] : null });
+        db.Producers.Add(new Producer { CompanyCode = c[0], CompanyName = c[1], Phone = c[2], Email = c[3], Website = c.Length > 4 && c[4] != "" ? c[4] : null });
+        db.SaveChanges();
     }
 
-    private static void ImportModelCsv(Microsoft.Data.Sqlite.SqliteConnection db, string[] c)
+    private static void ImportModelCsv(AppDbContext db, string[] c)
     {
         Require(c, 7, "Код;Наименование;Цвет;Обивка;Мощность;Кол-во дверей;КПП");
         var doors = ParseInt(c[5], "количество дверей");
         if (doors < 2) throw new FormatException("количество дверей должно быть не меньше 2");
-        db.Execute(
-            @"INSERT INTO Model (ModelCode, ModelName, Color, Upholstery, MotorPower, DoorCount, Transmission)
-              VALUES (@code, @name, @color, @uph, @power, @doors, @trans)",
-            new { code = c[0], name = c[1], color = c[2], uph = c[3], power = c[4], doors, trans = c[6] });
+        db.Models.Add(new Model { ModelCode = c[0], ModelName = c[1], Color = c[2], Upholstery = c[3], MotorPower = c[4], DoorCount = doors, Transmission = c[6] });
+        db.SaveChanges();
     }
 
-    private static void ImportClientCsv(Microsoft.Data.Sqlite.SqliteConnection db, string[] c)
+    private static void ImportClientCsv(AppDbContext db, string[] c)
     {
         Require(c, 3, "ФИО;Телефон;Адрес");
-        db.Execute("INSERT INTO Client (FIO, Phone, Address) VALUES (@fio, @phone, @address)",
-            new { fio = c[0], phone = c[1], address = c[2] });
+        db.Clients.Add(new Client { FIO = c[0], Phone = c[1], Address = c[2] });
+        db.SaveChanges();
     }
 
-    private static void ImportPriceCsv(Microsoft.Data.Sqlite.SqliteConnection db, string[] c)
+    private static void ImportPriceCsv(AppDbContext db, string[] c)
     {
         Require(c, 5, "Код модели;Год;Цена;Подготовка;Транспорт");
         var modelId = FindModelId(db, c[0]);
@@ -100,11 +97,10 @@ public static class ImportService
         var prep = ParseDecimal(c[3], "предпродажная подготовка");
         var transport = ParseDecimal(c[4], "транспортные издержки");
         CheckPrice(price, prep, transport);
-        if (db.ExecuteScalar<int>("SELECT COUNT(*) FROM PriceList WHERE ModelId = @modelId", new { modelId }) > 0)
+        if (db.PriceLists.Any(p => p.ModelId == modelId))
             throw new InvalidOperationException("для модели уже есть прейскурант (1:1)");
-        db.Execute(
-            "INSERT INTO PriceList (ModelId, YearOfManufacture, Price, PrepCost, TransportCost) VALUES (@modelId, @year, @price, @prep, @transport)",
-            new { modelId, year, price, prep, transport });
+        db.PriceLists.Add(new PriceList { ModelId = modelId, YearOfManufacture = year, Price = price, PrepCost = prep, TransportCost = transport });
+        db.SaveChanges();
     }
 
     // ---------------- Excel (XLSX) ----------------
@@ -118,8 +114,7 @@ public static class ImportService
         var sheet = package.Workbook.Worksheets.FirstOrDefault()
                     ?? throw new InvalidOperationException("В файле нет ни одного листа");
 
-        using var connection = Database.GetConnection();
-        connection.Open();
+        using var db = new AppDbContext();
 
         for (int row = 2; row <= sheet.Dimension?.End.Row; row++)
         {
@@ -131,10 +126,10 @@ public static class ImportService
                     {
                         var producerCode = sheet.Cells[row, 1].Text.Trim();
                         var modelCode = sheet.Cells[row, 2].Text.Trim();
-                        var producerId = FindProducerId(connection, producerCode);
-                        var modelId = FindModelId(connection, modelCode);
-                        connection.Execute("INSERT INTO Offer (ProducerId, ModelId) VALUES (@producerId, @modelId)",
-                            new { producerId, modelId });
+                        var producerId = FindProducerId(db, producerCode);
+                        var modelId = FindModelId(db, modelCode);
+                        db.Offers.Add(new Offer { ProducerId = producerId, ModelId = modelId });
+                        db.SaveChanges();
                         break;
                     }
                     case "sales":
@@ -146,15 +141,14 @@ public static class ImportService
                         var costText = sheet.Cells[row, 5].Text.Trim();
 
                         if (string.IsNullOrEmpty(orderNumber)) throw new FormatException("пустой номер договора");
-                        var clientId = FindClientId(connection, fio);
-                        var modelId = FindModelId(connection, modelCode);
+                        var clientId = FindClientId(db, fio);
+                        var modelId = FindModelId(db, modelCode);
                         if (!DateTime.TryParse(dateText, new CultureInfo("ru-RU"), DateTimeStyles.None, out var date)
                             && !DateTime.TryParse(dateText, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
                             throw new FormatException($"не распознана дата '{dateText}'");
                         var total = ParseDecimal(costText, "полная стоимость");
-                        connection.Execute(
-                            "INSERT INTO [Order] (OrderNumber, ClientId, ModelId, OrderDate, TotalCost) VALUES (@num, @clientId, @modelId, @date, @total)",
-                            new { num = orderNumber, clientId, modelId, date, total });
+                        db.Orders.Add(new Order { OrderNumber = orderNumber, ClientId = clientId, ModelId = modelId, OrderDate = date, TotalCost = total });
+                        db.SaveChanges();
                         break;
                     }
                 }
@@ -174,8 +168,7 @@ public static class ImportService
     {
         var result = new ImportResult();
         var root = JObject.Parse(File.ReadAllText(path));
-        using var connection = Database.GetConnection();
-        connection.Open();
+        using var db = new AppDbContext();
 
         var producerMap = new Dictionary<string, int>();
         var modelMap = new Dictionary<string, int>();
@@ -186,7 +179,7 @@ public static class ImportService
             {
                 var email = p.Value<string>("e_mail") ?? "";
                 if (email != "" && !EmailRegex.IsMatch(email)) throw new FormatException($"некорректный email '{email}'");
-                var id = InsertProducer(connection, p.Value<string>("название_фирмы") ?? "", p.Value<string>("телефон") ?? "",
+                var id = InsertProducer(db, p.Value<string>("название_фирмы") ?? "", p.Value<string>("телефон") ?? "",
                     email, p.Value<string>("web_site"));
                 producerMap[p.Value<string>("код_фирмы") ?? ""] = id;
                 result.Imported++;
@@ -198,7 +191,7 @@ public static class ImportService
         {
             try
             {
-                var id = InsertModel(connection, m.Value<string>("наименование_модели") ?? "", m.Value<string>("цвет") ?? "",
+                var id = InsertModel(db, m.Value<string>("наименование_модели") ?? "", m.Value<string>("цвет") ?? "",
                     m.Value<string>("обивка") ?? "", m.Value<string>("мощность_двигателя") ?? "",
                     (int?)m.Value<int?>("количество_дверей") ?? 0, m.Value<string>("коробка_передач") ?? "");
                 modelMap[m.Value<string>("код_модели") ?? ""] = id;
@@ -216,8 +209,8 @@ public static class ImportService
                 var mCode = link[1]?.ToString() ?? "";
                 if (!producerMap.ContainsKey(pCode) || !modelMap.ContainsKey(mCode))
                     throw new InvalidOperationException($"не найден внешний ключ ({pCode}, {mCode})");
-                connection.Execute("INSERT INTO Offer (ProducerId, ModelId) VALUES (@p, @m)",
-                    new { p = producerMap[pCode], m = modelMap[mCode] });
+                db.Offers.Add(new Offer { ProducerId = producerMap[pCode], ModelId = modelMap[mCode] });
+                db.SaveChanges();
             }
             catch (Exception ex) { result.Errors.Add($"Связь: {ex.Message}"); }
         }
@@ -235,9 +228,8 @@ public static class ImportService
                 var prep = pr.Value<decimal?>("предпродажная_подготовка_уе") ?? 0;
                 var transport = pr.Value<decimal?>("транспортные_издержки_уе") ?? 0;
                 CheckPrice(price, prep, transport);
-                connection.Execute(
-                    "INSERT INTO PriceList (ModelId, YearOfManufacture, Price, PrepCost, TransportCost) VALUES (@m, @y, @p, @pr, @t)",
-                    new { m = modelId, y = year, p = price, pr = prep, t = transport });
+                db.PriceLists.Add(new PriceList { ModelId = modelId, YearOfManufacture = year, Price = price, PrepCost = prep, TransportCost = transport });
+                db.SaveChanges();
                 result.Imported++;
             }
             catch (Exception ex) { result.Errors.Add($"Прейскурант: {ex.Message}"); }
@@ -247,7 +239,7 @@ public static class ImportService
         {
             try
             {
-                var clientId = InsertClient(connection, c.Value<string>("фио") ?? "", c.Value<string>("телефон") ?? "",
+                var clientId = InsertClient(db, c.Value<string>("фио") ?? "", c.Value<string>("телефон") ?? "",
                     c.Value<string>("адрес") ?? "");
                 result.Imported++;
 
@@ -257,15 +249,14 @@ public static class ImportService
                     var code = c.Value<string>("код_модели") ?? "";
                     if (!modelMap.TryGetValue(code, out var modelId))
                     {
-                        modelId = TryFindModelId(connection, code) ?? throw new InvalidOperationException($"не найден код модели '{code}'");
+                        modelId = TryFindModelId(db, code) ?? throw new InvalidOperationException($"не найден код модели '{code}'");
                     }
                     if (!DateTime.TryParse(c.Value<string>("дата_покупки"), CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
                         date = DateTime.Now;
-                    var total = connection.ExecuteScalar<decimal?>(
-                        "SELECT Price + PrepCost + TransportCost FROM PriceList WHERE ModelId = @modelId", new { modelId }) ?? 0;
-                    connection.Execute(
-                        "INSERT INTO [Order] (OrderNumber, ClientId, ModelId, OrderDate, TotalCost) VALUES (@n, @c, @m, @d, @t)",
-                        new { n = orderNumber, c = clientId, m = modelId, d = date, t = total });
+                    var priceItem = db.PriceLists.FirstOrDefault(p => p.ModelId == modelId);
+                    var total = (priceItem?.Price + priceItem?.PrepCost + priceItem?.TransportCost) ?? 0m;
+                    db.Orders.Add(new Order { OrderNumber = orderNumber, ClientId = clientId, ModelId = modelId, OrderDate = date, TotalCost = total });
+                    db.SaveChanges();
                 }
             }
             catch (Exception ex) { result.Errors.Add($"Клиент: {ex.Message}"); }
@@ -281,8 +272,7 @@ public static class ImportService
         var result = new ImportResult();
         var doc = XDocument.Load(path);
         var root = doc.Root ?? throw new InvalidOperationException("пустой XML");
-        using var connection = Database.GetConnection();
-        connection.Open();
+        using var db = new AppDbContext();
 
         var producerMap = new Dictionary<string, int>();
         var modelMap = new Dictionary<string, int>();
@@ -293,7 +283,7 @@ public static class ImportService
             {
                 var email = (string?)p.Attribute("e_mail") ?? "";
                 if (email != "" && !EmailRegex.IsMatch(email)) throw new FormatException($"некорректный email '{email}'");
-                var id = InsertProducer(connection, (string?)p.Attribute("название_фирмы") ?? "",
+                var id = InsertProducer(db, (string?)p.Attribute("название_фирмы") ?? "",
                     (string?)p.Attribute("телефон") ?? "", email, (string?)p.Attribute("web_site"));
                 producerMap[(string?)p.Attribute("код_фирмы") ?? ""] = id;
                 result.Imported++;
@@ -306,7 +296,7 @@ public static class ImportService
             try
             {
                 var doors = (int?)m.Attribute("количество_дверей") ?? 0;
-                var id = InsertModel(connection, (string?)m.Attribute("наименование_модели") ?? "",
+                var id = InsertModel(db, (string?)m.Attribute("наименование_модели") ?? "",
                     (string?)m.Attribute("цвет") ?? "", (string?)m.Attribute("обивка") ?? "",
                     (string?)m.Attribute("мощность_двигателя") ?? "", doors,
                     (string?)m.Attribute("коробка_передач") ?? "");
@@ -324,8 +314,8 @@ public static class ImportService
                 var mCode = (string?)l.Attribute("код_модели") ?? "";
                 if (!producerMap.ContainsKey(pCode) || !modelMap.ContainsKey(mCode))
                     throw new InvalidOperationException($"не найден внешний ключ ({pCode}, {mCode})");
-                connection.Execute("INSERT INTO Offer (ProducerId, ModelId) VALUES (@p, @m)",
-                    new { p = producerMap[pCode], m = modelMap[mCode] });
+                db.Offers.Add(new Offer { ProducerId = producerMap[pCode], ModelId = modelMap[mCode] });
+                db.SaveChanges();
             }
             catch (Exception ex) { result.Errors.Add($"Связь: {ex.Message}"); }
         }
@@ -343,9 +333,8 @@ public static class ImportService
                 var prep = (decimal?)pr.Attribute("предпродажная_подготовка_уе") ?? 0;
                 var transport = (decimal?)pr.Attribute("транспортные_издержки_уе") ?? 0;
                 CheckPrice(price, prep, transport);
-                connection.Execute(
-                    "INSERT INTO PriceList (ModelId, YearOfManufacture, Price, PrepCost, TransportCost) VALUES (@m, @y, @p, @pr, @t)",
-                    new { m = modelId, y = year, p = price, pr = prep, t = transport });
+                db.PriceLists.Add(new PriceList { ModelId = modelId, YearOfManufacture = year, Price = price, PrepCost = prep, TransportCost = transport });
+                db.SaveChanges();
                 result.Imported++;
             }
             catch (Exception ex) { result.Errors.Add($"Прейскурант: {ex.Message}"); }
@@ -355,7 +344,7 @@ public static class ImportService
         {
             try
             {
-                var clientId = InsertClient(connection, (string?)c.Attribute("фио") ?? "",
+                var clientId = InsertClient(db, (string?)c.Attribute("фио") ?? "",
                     (string?)c.Attribute("телефон") ?? "", (string?)c.Attribute("адрес") ?? "");
                 result.Imported++;
 
@@ -365,16 +354,15 @@ public static class ImportService
                     var code = (string?)c.Attribute("код_модели") ?? "";
                     if (!modelMap.TryGetValue(code, out var modelId))
                     {
-                        modelId = TryFindModelId(connection, code) ?? throw new InvalidOperationException($"не найден код модели '{code}'");
+                        modelId = TryFindModelId(db, code) ?? throw new InvalidOperationException($"не найден код модели '{code}'");
                     }
                     if (!DateTime.TryParse((string?)c.Attribute("дата_покупки"), CultureInfo.InvariantCulture,
                             DateTimeStyles.None, out var date))
                         date = DateTime.Now;
-                    var total = connection.ExecuteScalar<decimal?>(
-                        "SELECT Price + PrepCost + TransportCost FROM PriceList WHERE ModelId = @modelId", new { modelId }) ?? 0;
-                    connection.Execute(
-                        "INSERT INTO [Order] (OrderNumber, ClientId, ModelId, OrderDate, TotalCost) VALUES (@n, @c, @m, @d, @t)",
-                        new { n = orderNumber, c = clientId, m = modelId, d = date, t = total });
+                    var priceItem = db.PriceLists.FirstOrDefault(p => p.ModelId == modelId);
+                    var total = (priceItem?.Price + priceItem?.PrepCost + priceItem?.TransportCost) ?? 0m;
+                    db.Orders.Add(new Order { OrderNumber = orderNumber, ClientId = clientId, ModelId = modelId, OrderDate = date, TotalCost = total });
+                    db.SaveChanges();
                 }
             }
             catch (Exception ex) { result.Errors.Add($"Клиент: {ex.Message}"); }
@@ -385,39 +373,60 @@ public static class ImportService
 
     // ---------------- Общие помощники ----------------
 
-    private static int InsertProducer(Microsoft.Data.Sqlite.SqliteConnection db, string name, string phone, string email, string? site)
-        => db.ExecuteScalar<int>(
-            "INSERT INTO Producer (CompanyCode, CompanyName, Phone, Email, Website) VALUES (@code, @name, @phone, @email, @site); SELECT last_insert_rowid()",
-            new { code = $"auto-{Guid.NewGuid():N}", name, phone, email, site });
-
-    private static int InsertModel(Microsoft.Data.Sqlite.SqliteConnection db, string name, string color, string uph, string power, int doors, string trans)
+    private static int InsertProducer(AppDbContext db, string name, string phone, string email, string? site)
     {
-        if (doors < 2) throw new FormatException("количество дверей должно быть не меньше 2");
-        return db.ExecuteScalar<int>(
-            @"INSERT INTO Model (ModelCode, ModelName, Color, Upholstery, MotorPower, DoorCount, Transmission)
-              VALUES (@code, @name, @color, @uph, @power, @doors, @trans); SELECT last_insert_rowid()",
-            new { code = $"auto-{Guid.NewGuid():N}", name, color, uph, power, doors, trans });
+        var p = new Producer { CompanyCode = $"auto-{Guid.NewGuid():N}"[..30], CompanyName = name, Phone = phone, Email = email, Website = site };
+        db.Producers.Add(p);
+        db.SaveChanges();
+        return p.ProducerId;
     }
 
-    private static int InsertClient(Microsoft.Data.Sqlite.SqliteConnection db, string fio, string phone, string address)
-        => db.ExecuteScalar<int>(
-            "INSERT INTO Client (FIO, Phone, Address) VALUES (@fio, @phone, @address); SELECT last_insert_rowid()",
-            new { fio, phone, address });
+    private static int InsertModel(AppDbContext db, string name, string color, string uph, string power, int doors, string trans)
+    {
+        if (doors < 2) throw new FormatException("количество дверей должно быть не меньше 2");
+        var m = new Model { ModelCode = $"auto-{Guid.NewGuid():N}"[..30], ModelName = name, Color = color, Upholstery = uph, MotorPower = power, DoorCount = doors, Transmission = trans };
+        db.Models.Add(m);
+        db.SaveChanges();
+        return m.ModelId;
+    }
 
-    private static int FindModelId(Microsoft.Data.Sqlite.SqliteConnection db, string code)
-        => TryFindModelId(db, code) ?? throw new InvalidOperationException($"модель с кодом '{code}' не найдена");
+    private static int InsertClient(AppDbContext db, string fio, string phone, string address)
+    {
+        var c = new Client { FIO = fio, Phone = phone, Address = address };
+        db.Clients.Add(c);
+        db.SaveChanges();
+        return c.ClientId;
+    }
 
-    private static int? TryFindModelId(Microsoft.Data.Sqlite.SqliteConnection db, string code)
-        => db.ExecuteScalar<int?>("SELECT ModelId FROM Model WHERE ModelCode = @code OR CAST(ModelId AS TEXT) = @code",
-            new { code });
+    private static int FindModelId(AppDbContext db, string code)
+    {
+        var id = int.TryParse(code, out var num) ? num : 0;
+        var m = db.Models.FirstOrDefault(m => m.ModelCode == code || m.ModelId == id)
+            ?? throw new InvalidOperationException($"модель с кодом '{code}' не найдена");
+        return m.ModelId;
+    }
 
-    private static int FindProducerId(Microsoft.Data.Sqlite.SqliteConnection db, string code)
-        => db.ExecuteScalar<int?>("SELECT ProducerId FROM Producer WHERE CompanyCode = @code OR CAST(ProducerId AS TEXT) = @code",
-            new { code }) ?? throw new InvalidOperationException($"поставщик с кодом '{code}' не найден");
+    private static int? TryFindModelId(AppDbContext db, string code)
+    {
+        var id = int.TryParse(code, out var num) ? num : 0;
+        return db.Models.FirstOrDefault(m => m.ModelCode == code || m.ModelId == id)?.ModelId;
+    }
 
-    private static int FindClientId(Microsoft.Data.Sqlite.SqliteConnection db, string fio)
-        => db.ExecuteScalar<int?>("SELECT ClientId FROM Client WHERE FIO = @fio OR CAST(ClientId AS TEXT) = @fio",
-            new { fio }) ?? throw new InvalidOperationException($"клиент '{fio}' не найден");
+    private static int FindProducerId(AppDbContext db, string code)
+    {
+        var id = int.TryParse(code, out var num) ? num : 0;
+        var p = db.Producers.FirstOrDefault(p => p.CompanyCode == code || p.ProducerId == id)
+            ?? throw new InvalidOperationException($"поставщик с кодом '{code}' не найден");
+        return p.ProducerId;
+    }
+
+    private static int FindClientId(AppDbContext db, string fio)
+    {
+        var id = int.TryParse(fio, out var num) ? num : 0;
+        var c = db.Clients.FirstOrDefault(c => c.FIO == fio || c.ClientId == id)
+            ?? throw new InvalidOperationException($"клиент '{fio}' не найден");
+        return c.ClientId;
+    }
 
     private static void Require(string[] cells, int count, string format)
     {

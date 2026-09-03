@@ -1,8 +1,8 @@
-﻿using AutoSalesApp.Data;
 using AutoSalesApp.Models;
+using AutoSalesApp.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Dapper;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
@@ -38,52 +38,46 @@ public partial class ProducerViewModel : ObservableObject
 
     public ProducerViewModel()
     {
-        AddCommand = new RelayCommand(AddProducer);
-        DeleteCommand = new RelayCommand(DeleteProducer, () => SelectedProducer != null);
-        RefreshCommand = new RelayCommand(LoadProducers);
-        LoadProducers();
+        AddCommand = new RelayCommand(Add);
+        DeleteCommand = new RelayCommand(Delete, () => SelectedProducer != null);
+        RefreshCommand = new RelayCommand(Load);
+        Load();
     }
 
-    private void LoadProducers()
+    private void Load()
     {
-        using var connection = Database.GetConnection();
-        connection.Open();
-        var list = connection.Query<Producer>("SELECT * FROM Producer ORDER BY ProducerId").ToList();
-
-        System.Diagnostics.Debug.WriteLine($"Загружено поставщиков: {list.Count}");
-        foreach (var p in list)
-        {
-            System.Diagnostics.Debug.WriteLine($"  {p.ProducerId}: {p.CompanyName}");
-        }
-
-        // Создаём новую коллекцию вместо Clear/Add
+        using var db = new AppDbContext();
+        var list = db.Producers.OrderBy(p => p.CompanyName).ToList();
         Producers = new ObservableCollection<Producer>(list);
     }
 
-    private void AddProducer()
+    private void Add()
     {
-        if (string.IsNullOrWhiteSpace(CompanyCode) || string.IsNullOrWhiteSpace(CompanyName))
-            return;
+        if (string.IsNullOrWhiteSpace(CompanyName)) return;
 
-        using var connection = Database.GetConnection();
-        connection.Open();
-        connection.Execute(@"
-            INSERT INTO Producer (CompanyCode, CompanyName, Phone, Email, Website)
-            VALUES (@CompanyCode, @CompanyName, @Phone, @Email, @Website)",
-            new { CompanyCode, CompanyName, Phone, Email, Website });
+        using var db = new AppDbContext();
+        db.Producers.Add(new Producer
+        {
+            CompanyCode = CompanyCode,
+            CompanyName = CompanyName,
+            Phone = Phone,
+            Email = Email,
+            Website = Website
+        });
+        db.SaveChanges();
 
         CompanyCode = CompanyName = Phone = Email = Website = string.Empty;
-        LoadProducers();
+        Load();
     }
 
-    private void DeleteProducer()
+    private void Delete()
     {
         if (SelectedProducer == null) return;
 
-        using var connection = Database.GetConnection();
-        connection.Open();
-        connection.Execute("DELETE FROM Producer WHERE ProducerId = @Id", new { Id = SelectedProducer.ProducerId });
-        LoadProducers();
+        using var db = new AppDbContext();
+        db.Producers.Remove(SelectedProducer);
+        db.SaveChanges();
+        Load();
     }
 
     partial void OnSelectedProducerChanged(Producer? value)

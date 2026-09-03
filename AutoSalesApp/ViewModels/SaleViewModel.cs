@@ -6,20 +6,20 @@ using AutoSalesApp.Data;
 using AutoSalesApp.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Dapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace AutoSalesApp.ViewModels;
 
 public partial class SaleViewModel : ObservableObject
 {
     [ObservableProperty]
+    private ObservableCollection<OrderItem> _orders = new();
+
+    [ObservableProperty]
     private ObservableCollection<Client> _clients = new();
 
     [ObservableProperty]
     private ObservableCollection<ModelWithPrice> _models = new();
-
-    [ObservableProperty]
-    private ObservableCollection<OrderItem> _orders = new();
 
     [ObservableProperty]
     private Client? _selectedClient;
@@ -28,10 +28,7 @@ public partial class SaleViewModel : ObservableObject
     private ModelWithPrice? _selectedModel;
 
     [ObservableProperty]
-    private OrderItem? _selectedOrder;
-
-    [ObservableProperty]
-    private DateTimeOffset _orderDate = DateTimeOffset.Now;
+    private DateTimeOffset? _orderDate = DateTimeOffset.Now;
 
     [ObservableProperty]
     private string _orderNumber = string.Empty;
@@ -42,53 +39,88 @@ public partial class SaleViewModel : ObservableObject
     [ObservableProperty]
     private string _errorMessage = string.Empty;
 
+    [ObservableProperty]
+    private OrderItem? _selectedOrder;
+
     public ICommand SellCommand { get; }
-    public ICommand DeleteCommand { get; }
     public ICommand RefreshCommand { get; }
+    public ICommand DeleteCommand { get; }
 
     public SaleViewModel()
     {
         SellCommand = new RelayCommand(Sell);
-        DeleteCommand = new RelayCommand(DeleteOrder, () => SelectedOrder != null);
-        RefreshCommand = new RelayCommand(LoadAll);
-        LoadAll();
-        OrderNumber = NextOrderNumber();
+        RefreshCommand = new RelayCommand(Load);
+        DeleteCommand = new RelayCommand(Delete, () => SelectedOrder != null);
+        Load();
+        LoadClients();
+        LoadModels();
     }
 
-    private void LoadAll()
+    private void Delete()
     {
-        using var connection = Database.GetConnection();
-        connection.Open();
+        if (SelectedOrder == null) return;
 
-        Clients = new ObservableCollection<Client>(
-            connection.Query<Client>("SELECT * FROM Client ORDER BY FIO").ToList());
-
-        Models = new ObservableCollection<ModelWithPrice>(
-            connection.Query<ModelWithPrice>(@"
-                SELECT m.ModelId, m.ModelName, m.Color, m.Transmission,
-                       p.YearOfManufacture,
-                       (p.Price + p.PrepCost + p.TransportCost) AS TotalCost
-                FROM Model m
-                JOIN PriceList p ON p.ModelId = m.ModelId
-                ORDER BY m.ModelName").ToList());
-
-        Orders = new ObservableCollection<OrderItem>(
-            connection.Query<OrderItem>(@"
-                SELECT o.OrderId, o.OrderNumber, c.FIO AS ClientFio, m.ModelName,
-                       o.OrderDate, o.TotalCost
-                FROM [Order] o
-                JOIN Client c ON c.ClientId = o.ClientId
-                JOIN Model m ON m.ModelId = o.ModelId
-                ORDER BY o.OrderId").ToList());
+        using var db = new AppDbContext();
+        var order = db.Orders.FirstOrDefault(o => o.OrderId == SelectedOrder.OrderId);
+        if (order != null)
+        {
+            db.Orders.Remove(order);
+            db.SaveChanges();
+        }
+        Load();
     }
 
-    private string NextOrderNumber()
+    partial void OnSelectedOrderChanged(OrderItem? value)
     {
-        using var connection = Database.GetConnection();
-        connection.Open();
-        var max = connection.ExecuteScalar<int?>(
-            "SELECT MAX(CAST(SUBSTR(OrderNumber, 2) AS INTEGER)) FROM [Order] WHERE OrderNumber GLOB 'Д[0-9]*'");
-        return $"Д{(max ?? 0) + 1:000}";
+        ((RelayCommand)DeleteCommand).NotifyCanExecuteChanged();
+    }
+
+    private void Load()
+    {
+        using var db = new AppDbContext();
+        var orders = db.Orders
+            .Include(o => o.Client)
+            .Include(o => o.Model)
+            .OrderByDescending(o => o.OrderId)
+            .ToList();
+
+        var items = orders.Select(o => new OrderItem
+        {
+            OrderId = o.OrderId,
+            OrderNumber = o.OrderNumber,
+            ClientFio = o.Client?.FIO ?? string.Empty,
+            ModelName = o.Model?.ModelName ?? string.Empty,
+            OrderDate = o.OrderDate,
+            TotalCost = o.TotalCost
+        }).ToList();
+
+        Orders = new ObservableCollection<OrderItem>(items);
+    }
+
+    private void LoadClients()
+    {
+        using var db = new AppDbContext();
+        var list = db.Clients.OrderBy(c => c.FIO).ToList();
+        Clients = new ObservableCollection<Client>(list);
+    }
+
+    private void LoadModels()
+    {
+        using var db = new AppDbContext();
+        var rows = db.PriceLists
+            .Include(p => p.Model)
+            .ToList()
+            .Select(p => new ModelWithPrice
+            {
+                ModelId = p.ModelId,
+                ModelName = p.Model!.ModelName,
+                Color = p.Model!.Color,
+                Transmission = p.Model!.Transmission,
+                YearOfManufacture = p.YearOfManufacture,
+                TotalCost = p.Price + p.PrepCost + p.TransportCost
+            })
+            .ToList();
+        Models = new ObservableCollection<ModelWithPrice>(rows);
     }
 
     private void Sell()
@@ -105,59 +137,45 @@ public partial class SaleViewModel : ObservableObject
             ErrorMessage = "Выберите модель";
             return;
         }
-        if (string.IsNullOrWhiteSpace(OrderNumber))
+        if (OrderDate == null)
         {
-            ErrorMessage = "Введите номер договора";
+            ErrorMessage = "Укажите дату заказа";
             return;
         }
 
-        using var connection = Database.GetConnection();
-        connection.Open();
+        using var db = new AppDbContext();
 
-        var duplicate = connection.ExecuteScalar<int>(
-            "SELECT COUNT(*) FROM [Order] WHERE OrderNumber = @OrderNumber",
-            new { OrderNumber });
-        if (duplicate > 0)
+        int num;
+        var lastNumber = db.Orders
+            .OrderByDescending(o => o.OrderId)
+            .Select(o => o.OrderNumber)
+            .FirstOrDefault();
+
+        if (string.IsNullOrEmpty(lastNumber) || !int.TryParse(lastNumber.TrimStart('Д', 'д'), out num))
+            num = db.Orders.Count();
+
+        var orderNumber = "Д" + (num + 1).ToString("D3");
+
+        db.Orders.Add(new Order
         {
-            ErrorMessage = "Договор с таким номером уже существует";
-            return;
-        }
+            OrderNumber = orderNumber,
+            ClientId = SelectedClient.ClientId,
+            ModelId = SelectedModel.ModelId,
+            OrderDate = OrderDate.Value.Date,
+            TotalCost = TotalCost
+        });
+        db.SaveChanges();
 
-        connection.Execute(@"
-            INSERT INTO [Order] (OrderNumber, ClientId, ModelId, OrderDate, TotalCost)
-            VALUES (@OrderNumber, @ClientId, @ModelId, @OrderDate, @TotalCost)",
-            new
-            {
-                OrderNumber,
-                ClientId = SelectedClient.ClientId,
-                ModelId = SelectedModel.ModelId,
-                OrderDate = OrderDate.DateTime,
-                TotalCost
-            });
-
-        LoadAll();
-        OrderNumber = NextOrderNumber();
-        OrderDate = DateTimeOffset.Now;
-    }
-
-    private void DeleteOrder()
-    {
-        if (SelectedOrder == null) return;
-
-        using var connection = Database.GetConnection();
-        connection.Open();
-        connection.Execute("DELETE FROM [Order] WHERE OrderId = @Id", new { Id = SelectedOrder.OrderId });
-        LoadAll();
-        OrderNumber = NextOrderNumber();
+        SelectedModel = null;
+        SelectedClient = null;
+        OrderNumber = string.Empty;
+        TotalCost = 0;
+        Load();
     }
 
     partial void OnSelectedModelChanged(ModelWithPrice? value)
     {
-        TotalCost = value?.TotalCost ?? 0;
-    }
-
-    partial void OnSelectedOrderChanged(OrderItem? value)
-    {
-        ((RelayCommand)DeleteCommand).NotifyCanExecuteChanged();
+        if (value != null)
+            TotalCost = value.TotalCost;
     }
 }

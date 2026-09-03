@@ -22,8 +22,8 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-    <PackageReference Include="Dapper" Version="2.1.79" />
     <PackageReference Include="EPPlus" Version="8.7.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.11" />
     <PackageReference Include="iTextSharp.LGPLv2.Core" Version="3.8.5" />
     <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.1.0-dev-798" />
     <!-- Выравниваем версии нативных библиотек SkiaSharp с управляемой (сонар-конфликт LiveCharts + Avalonia) -->

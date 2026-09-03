@@ -1,11 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 using AutoSalesApp.Models;
 using AutoSalesApp.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Dapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace AutoSalesApp.ViewModels;
 
@@ -40,9 +41,8 @@ public partial class ClientViewModel : ObservableObject
 
     private void LoadClients()
     {
-        using var connection = Database.GetConnection();
-        connection.Open();
-        var list = connection.Query<Client>("SELECT * FROM Client ORDER BY ClientId");
+        using var db = new AppDbContext();
+        var list = db.Clients.OrderBy(c => c.ClientId).ToList();
         Clients = new ObservableCollection<Client>(list);
     }
 
@@ -51,12 +51,9 @@ public partial class ClientViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(Fio) || string.IsNullOrWhiteSpace(Phone))
             return;
 
-        using var connection = Database.GetConnection();
-        connection.Open();
-        connection.Execute(@"
-            INSERT INTO Client (FIO, Phone, Address)
-            VALUES (@Fio, @Phone, @Address)",
-            new { Fio, Phone, Address });
+        using var db = new AppDbContext();
+        db.Clients.Add(new Client { FIO = Fio, Phone = Phone, Address = Address });
+        db.SaveChanges();
 
         Fio = Phone = Address = string.Empty;
         LoadClients();
@@ -66,9 +63,9 @@ public partial class ClientViewModel : ObservableObject
     {
         if (SelectedClient == null) return;
 
-        using var connection = Database.GetConnection();
-        connection.Open();
-        connection.Execute("DELETE FROM Client WHERE ClientId = @Id", new { Id = SelectedClient.ClientId });
+        using var db = new AppDbContext();
+        db.Clients.Remove(SelectedClient);
+        db.SaveChanges();
         LoadClients();
     }
 

@@ -8,8 +8,8 @@ build_property.AvaloniaNameGeneratorViewFileNamingStrategy = NamespaceAndClassNa
 build_property.AvaloniaNameGeneratorAttachDevTools = true
 build_property.AvaloniaUseCompiledBindingsByDefault = true
 build_property.AvaloniaMainPackageVersion = 12.1.1
-build_property.AvaloniaPreviewerNetCoreToolPath = C:\Users\igggrrr\.nuget\packages\avalonia\12.1.1\buildTransitive\\..\tools\net8.0\designer\Avalonia.Designer.HostApp.dll
-build_property.AvaloniaResourcePaths = C:\Users\igggrrr\source\repos\AutoSalesApp\AutoSalesApp\Assets\avalonia-logo.ico
+build_property.AvaloniaPreviewerNetCoreToolPath = /home/openhands/.nuget/packages/avalonia/12.1.1/buildTransitive//../tools/net8.0/designer/Avalonia.Designer.HostApp.dll
+build_property.AvaloniaResourcePaths = /workspace/project/AvtoProject/AutoSalesApp/Assets/avalonia-logo.ico,/workspace/project/AvtoProject/AutoSalesApp/App.axaml,/workspace/project/AvtoProject/AutoSalesApp/Views/ChartView.axaml,/workspace/project/AvtoProject/AutoSalesApp/Views/ClientView.axaml,/workspace/project/AvtoProject/AutoSalesApp/Views/ImportExportView.axaml,/workspace/project/AvtoProject/AutoSalesApp/Views/MainWindow.axaml,/workspace/project/AvtoProject/AutoSalesApp/Views/ModelView.axaml,/workspace/project/AvtoProject/AutoSalesApp/Views/PriceView.axaml,/workspace/project/AvtoProject/AutoSalesApp/Views/ProducerView.axaml,/workspace/project/AvtoProject/AutoSalesApp/Views/ReportView.axaml,/workspace/project/AvtoProject/AutoSalesApp/Views/SaleView.axaml
 build_property.MvvmToolkitEnableINotifyPropertyChangingSupport = true
 build_property._MvvmToolkitIsUsingWindowsRuntimePack = false
 build_property.CsWinRTComponent = 
@@ -27,23 +27,38 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property.EntryPointFilePath = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = AutoSalesApp
-build_property.ProjectDir = C:\Users\igggrrr\source\repos\AutoSalesApp\AutoSalesApp\
+build_property.ProjectDir = /workspace/project/AvtoProject/AutoSalesApp/
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/igggrrr/source/repos/AutoSalesApp/AutoSalesApp/App.axaml]
+[/workspace/project/AvtoProject/AutoSalesApp/App.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[C:/Users/igggrrr/source/repos/AutoSalesApp/AutoSalesApp/Views/ClientView.axaml]
+[/workspace/project/AvtoProject/AutoSalesApp/Views/ChartView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[C:/Users/igggrrr/source/repos/AutoSalesApp/AutoSalesApp/Views/MainWindow.axaml]
+[/workspace/project/AvtoProject/AutoSalesApp/Views/ClientView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[C:/Users/igggrrr/source/repos/AutoSalesApp/AutoSalesApp/Views/ModelView.axaml]
+[/workspace/project/AvtoProject/AutoSalesApp/Views/ImportExportView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[C:/Users/igggrrr/source/repos/AutoSalesApp/AutoSalesApp/Views/ProducerView.axaml]
+[/workspace/project/AvtoProject/AutoSalesApp/Views/MainWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/workspace/project/AvtoProject/AutoSalesApp/Views/ModelView.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/workspace/project/AvtoProject/AutoSalesApp/Views/PriceView.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/workspace/project/AvtoProject/AutoSalesApp/Views/ProducerView.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/workspace/project/AvtoProject/AutoSalesApp/Views/ReportView.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/workspace/project/AvtoProject/AutoSalesApp/Views/SaleView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml

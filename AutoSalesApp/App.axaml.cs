@@ -17,7 +17,6 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         Database.Init();
-        SeedData.Insert();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

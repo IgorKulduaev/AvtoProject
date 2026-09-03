@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,4 +12,7 @@ public class Order
     public int ModelId { get; set; }
     public DateTime OrderDate { get; set; }
     public decimal TotalCost { get; set; }
+
+    public Client? Client { get; set; }
+    public Model? Model { get; set; }
 }

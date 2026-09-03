@@ -6,10 +6,9 @@ using System.Linq;
 using AutoSalesApp.Data;
 using AutoSalesApp.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Dapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace AutoSalesApp.ViewModels;
-
 public partial class ReportViewModel : ObservableObject
 {
     public ObservableCollection<string> ReportNames { get; } = new()
@@ -42,26 +41,31 @@ public partial class ReportViewModel : ObservableObject
 
     private void BuildReport()
     {
-        using var connection = Database.GetConnection();
-        connection.Open();
+        using var db = new AppDbContext();
 
         switch (SelectedReportIndex)
         {
-            case 0: // Отчёт 1. Сводка по поставщикам
+            case 0: // Сводка по поставщикам
             {
                 Headers = new ObservableCollection<string>
                 {
                     "Название фирмы", "Телефон", "Email", "Моделей предлагает", "Продано автомобилей"
                 };
-                var data = connection.Query(@"
-                    SELECT p.CompanyName, p.Phone, p.Email,
-                           COUNT(DISTINCT of.ModelId) AS ModelsCount,
-                           COUNT(o.OrderId) AS SoldCount
-                    FROM Producer p
-                    LEFT JOIN Offer of ON of.ProducerId = p.ProducerId
-                    LEFT JOIN [Order] o ON o.ModelId = of.ModelId
-                    GROUP BY p.ProducerId
-                    ORDER BY p.CompanyName");
+                var data = db.Producers
+                    .OrderBy(p => p.CompanyName)
+                    .ToList()
+                    .Select(p => new
+                    {
+                        p.CompanyName,
+                        p.Phone,
+                        p.Email,
+                        ModelsCount = db.Offers.Count(o => o.ProducerId == p.ProducerId),
+                        SoldCount = db.Offers
+                            .Where(o => o.ProducerId == p.ProducerId)
+                            .Select(o => o.ModelId)
+                            .Distinct()
+                            .Sum(mid => db.Orders.Count(o2 => o2.ModelId == mid))
+                    });
                 Rows = ToRows(data, r =>
                 {
                     var companyName = (string)r.CompanyName;
@@ -73,21 +77,31 @@ public partial class ReportViewModel : ObservableObject
                 });
                 break;
             }
-            case 1: // Отчёт 2. Сводка по моделям
+            case 1: // Сводка по моделям
             {
                 Headers = new ObservableCollection<string>
                 {
                     "Модель", "Цвет", "Обивка", "Мощность", "КПП", "Год", "Цена (у.е.)",
                     "Полная стоимость (у.е.)", "Продаж"
                 };
-                var data = connection.Query(@"
-                    SELECT m.ModelName, m.Color, m.Upholstery, m.MotorPower, m.Transmission,
-                           p.YearOfManufacture, p.Price,
-                           (p.Price + p.PrepCost + p.TransportCost) AS TotalCost,
-                           (SELECT COUNT(*) FROM [Order] o WHERE o.ModelId = m.ModelId) AS SoldCount
-                    FROM Model m
-                    LEFT JOIN PriceList p ON p.ModelId = m.ModelId
-                    ORDER BY m.ModelName");
+                var data = db.Models
+                    .Include(m => m.PriceList)
+                    .OrderBy(m => m.ModelName)
+                    .ToList()
+                    .Select(m => new
+                    {
+                        m.ModelName,
+                        m.Color,
+                        m.Upholstery,
+                        m.MotorPower,
+                        m.Transmission,
+                        YearOfManufacture = (int?)m.PriceList?.YearOfManufacture,
+                        Price = (decimal?)m.PriceList?.Price,
+                        TotalCost = m.PriceList == null
+                            ? (decimal?)null
+                            : m.PriceList.Price + m.PriceList.PrepCost + m.PriceList.TransportCost,
+                        SoldCount = db.Orders.Count(o => o.ModelId == m.ModelId)
+                    });
                 Rows = ToRows(data, r =>
                 {
                     var name = (string)r.ModelName;
@@ -103,42 +117,65 @@ public partial class ReportViewModel : ObservableObject
                 });
                 break;
             }
-            case 2: // Отчёт 3. Сводка по клиентам
+            case 2: // Сводка по клиентам
             {
                 Headers = new ObservableCollection<string>
                 {
                     "Ф.И.О.", "Телефон", "Адрес", "Дата покупки", "Купленная модель", "Стоимость покупки (у.е.)"
                 };
-                var data = connection.Query(@"
-                    SELECT c.FIO, c.Phone, c.Address,
-                           strftime('%d.%m.%Y', o.OrderDate) AS OrderDateStr,
-                           m.ModelName, o.TotalCost
-                    FROM Client c
-                    LEFT JOIN [Order] o ON o.ClientId = c.ClientId
-                    LEFT JOIN Model m ON m.ModelId = o.ModelId
-                    ORDER BY c.FIO, o.OrderDate");
-                Rows = ToRows(data, r =>
+                var clients = db.Clients.OrderBy(c => c.FIO).ToList();
+                var rows = new List<ReportRow>();
+                foreach (var cli in clients)
                 {
-                    var fio = (string)r.FIO;
-                    var phone = (string)r.Phone;
-                    var address = (string)r.Address;
-                    var date = (string?)r.OrderDateStr ?? "-";
-                    var model = (string?)r.ModelName ?? "-";
-                    var cost = r.TotalCost == null ? "-" : Money((decimal)r.TotalCost);
-                    return new string?[] { fio, phone, address, date, model, cost };
-                });
+                    var orders = db.Orders
+                        .Include(o => o.Model)
+                        .Where(o => o.ClientId == cli.ClientId)
+                        .OrderBy(o => o.OrderDate)
+                        .ToList();
+
+                    if (orders.Count == 0)
+                    {
+                        rows.Add(new ReportRow { Cells = new[] { cli.FIO, cli.Phone, cli.Address, "-", "-", "-" } });
+                    }
+                    else
+                    {
+                        foreach (var order in orders)
+                        {
+                            rows.Add(new ReportRow
+                            {
+                                Cells = new[]
+                                {
+                                    cli.FIO, cli.Phone, cli.Address,
+                                    order.OrderDate.ToString("dd.MM.yyyy"),
+                                    order.Model?.ModelName ?? "-",
+                                    Money(order.TotalCost)
+                                }
+                            });
+                        }
+                    }
+                }
+                Rows = new ObservableCollection<ReportRow>(rows);
                 break;
             }
-            case 3: // Отчёт 4. Непроданные модели
+            case 3: // Непроданные модели
             {
                 Headers = new ObservableCollection<string> { "Модель", "Цвет", "КПП", "Год", "Полная стоимость (у.е.)" };
-                var data = connection.Query(@"
-                    SELECT m.ModelName, m.Color, m.Transmission, p.YearOfManufacture,
-                           (p.Price + p.PrepCost + p.TransportCost) AS TotalCost
-                    FROM Model m
-                    LEFT JOIN PriceList p ON p.ModelId = m.ModelId
-                    WHERE NOT EXISTS (SELECT 1 FROM [Order] o WHERE o.ModelId = m.ModelId)
-                    ORDER BY m.ModelName");
+                var soldIds = db.Orders.Select(o => o.ModelId).Distinct().ToHashSet();
+                var data = db.Models
+                    .Include(m => m.PriceList)
+                    .ToList()
+                    .Where(m => !soldIds.Contains(m.ModelId))
+                    .OrderBy(m => m.ModelName)
+                    .Select(m => new
+                    {
+                        m.ModelName,
+                        m.Color,
+                        m.Transmission,
+                        YearOfManufacture = (int?)m.PriceList?.YearOfManufacture,
+                        TotalCost = m.PriceList == null
+                            ? (decimal?)null
+                            : m.PriceList.Price + m.PriceList.PrepCost + m.PriceList.TransportCost
+                    });
                 Rows = ToRows(data, r =>
                 {
                     var name = (string)r.ModelName;
@@ -150,20 +187,27 @@ public partial class ReportViewModel : ObservableObject
                 });
                 break;
             }
-            default: // Отчёт 5. Доходность по моделям
+            default: // Доходность по моделям
             {
                 Headers = new ObservableCollection<string>
                 {
                     "Модель", "Цена (у.е.)", "Подготовка (у.е.)", "Транспорт (у.е.)",
                     "Полная стоимость (у.е.)", "Продано", "Выручка (у.е.)"
                 };
-                var data = connection.Query(@"
-                    SELECT m.ModelName, p.Price, p.PrepCost, p.TransportCost,
-                           (p.Price + p.PrepCost + p.TransportCost) AS TotalCost,
-                           (SELECT COUNT(*) FROM [Order] o WHERE o.ModelId = m.ModelId) AS SoldCount
-                    FROM Model m
-                    JOIN PriceList p ON p.ModelId = m.ModelId
-                    ORDER BY m.ModelName");
+                var data = db.Models
+                    .Include(m => m.PriceList)
+                    .OrderBy(m => m.ModelName)
+                    .ToList()
+                    .Where(m => m.PriceList != null)
+                    .Select(m => new
+                    {
+                        m.ModelName,
+                        m.PriceList!.Price,
+                        m.PriceList!.PrepCost,
+                        m.PriceList!.TransportCost,
+                        TotalCost = m.PriceList.Price + m.PriceList.PrepCost + m.PriceList.TransportCost,
+                        SoldCount = db.Orders.Count(o => o.ModelId == m.ModelId)
+                    });
                 Rows = ToRows(data, r =>
                 {
                     var name = (string)r.ModelName;

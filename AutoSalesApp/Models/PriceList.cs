@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,4 +12,6 @@ public class PriceList
     public decimal Price { get; set; }
     public decimal PrepCost { get; set; }
     public decimal TransportCost { get; set; }
+
+    public Model? Model { get; set; }
 }

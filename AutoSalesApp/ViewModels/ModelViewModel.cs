@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
-using AutoSalesApp.Models;
 using AutoSalesApp.Data;
+using AutoSalesApp.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Dapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace AutoSalesApp.ViewModels;
 
@@ -48,7 +46,7 @@ public partial class ModelViewModel : ObservableObject
     private string _transmission = "автоматическая";
 
     [ObservableProperty]
-    private string _yearOfManufacture = "2025";
+    private string _yearOfManufacture = DateTime.Now.Year.ToString();
 
     [ObservableProperty]
     private string _price = string.Empty;
@@ -68,30 +66,28 @@ public partial class ModelViewModel : ObservableObject
 
     public ModelViewModel()
     {
-        AddCommand = new RelayCommand(AddModel);
-        DeleteCommand = new RelayCommand(DeleteModel, () => SelectedModel != null);
-        RefreshCommand = new RelayCommand(LoadModels);
-        LoadModels();
+        AddCommand = new RelayCommand(Add);
+        DeleteCommand = new RelayCommand(Delete, () => SelectedModel != null);
+        RefreshCommand = new RelayCommand(Load);
+        Load();
         LoadProducers();
     }
 
-    private void LoadModels()
+    private void Load()
     {
-        using var connection = Database.GetConnection();
-        connection.Open();
-        var list = connection.Query<Model>("SELECT * FROM Model ORDER BY ModelId");
+        using var db = new AppDbContext();
+        var list = db.Models.OrderBy(m => m.ModelId).ToList();
         Models = new ObservableCollection<Model>(list);
     }
 
     private void LoadProducers()
     {
-        using var connection = Database.GetConnection();
-        connection.Open();
-        var list = connection.Query<Producer>("SELECT * FROM Producer ORDER BY CompanyName");
+        using var db = new AppDbContext();
+        var list = db.Producers.OrderBy(p => p.CompanyName).ToList();
         Producers = new ObservableCollection<Producer>(list);
     }
 
-    private void AddModel()
+    private void Add()
     {
         if (string.IsNullOrWhiteSpace(ModelCode) || string.IsNullOrWhiteSpace(ModelName))
         {
@@ -117,48 +113,43 @@ public partial class ModelViewModel : ObservableObject
             return;
         }
 
-        if (!TryParseMoney(PrepCost, out decimal prepCost) || prepCost < 0)
+        if (!TryParseMoney(PrepCost, out decimal prepCost) || prepCost < 0 ||
+            !TryParseMoney(TransportCost, out decimal transportCost) || transportCost < 0)
         {
-            ErrorMessage = "Подготовка: введите неотрицательное число";
-            return;
-        }
-
-        if (!TryParseMoney(TransportCost, out decimal transportCost) || transportCost < 0)
-        {
-            ErrorMessage = "Транспорт: введите неотрицательное число";
+            ErrorMessage = "Подготовка и транспорт: введите неотрицательные числа";
             return;
         }
 
         ErrorMessage = string.Empty;
 
-        using var connection = Database.GetConnection();
-        connection.Open();
-
-        // Добавляем модель
-        connection.Execute(@"
-            INSERT INTO Model (ModelCode, ModelName, Color, Upholstery, MotorPower, DoorCount, Transmission)
-            VALUES (@ModelCode, @ModelName, @Color, @Upholstery, @MotorPower, @DoorCount, @Transmission)",
-            new { ModelCode, ModelName, Color, Upholstery, MotorPower, DoorCount = doorCount, Transmission });
-
-        // Получаем ID новой модели
-        var modelId = connection.ExecuteScalar<int>("SELECT last_insert_rowid()");
-
-        // Добавляем цену
-        connection.Execute(@"
-            INSERT INTO PriceList (ModelId, YearOfManufacture, Price, PrepCost, TransportCost)
-            VALUES (@ModelId, @YearOfManufacture, @Price, @PrepCost, @TransportCost)",
-            new { ModelId = modelId, YearOfManufacture = year, Price = price, PrepCost = prepCost, TransportCost = transportCost });
-
-        // Добавляем связи с поставщиками
-        foreach (var producer in SelectedProducers)
+        using var db = new AppDbContext();
+        var model = new Model
         {
-            connection.Execute(@"
-                INSERT INTO Offer (ProducerId, ModelId)
-                VALUES (@ProducerId, @ModelId)",
-                new { ProducerId = producer.ProducerId, ModelId = modelId });
-        }
+            ModelCode = ModelCode,
+            ModelName = ModelName,
+            Color = Color,
+            Upholstery = Upholstery,
+            MotorPower = MotorPower,
+            DoorCount = doorCount,
+            Transmission = Transmission
+        };
+        db.Models.Add(model);
+        db.SaveChanges();
 
-        // Очищаем поля
+        db.PriceLists.Add(new PriceList
+        {
+            ModelId = model.ModelId,
+            YearOfManufacture = year,
+            Price = price,
+            PrepCost = prepCost,
+            TransportCost = transportCost
+        });
+        db.SaveChanges();
+
+        foreach (var producer in SelectedProducers)
+            db.Offers.Add(new Offer { ProducerId = producer.ProducerId, ModelId = model.ModelId });
+        db.SaveChanges();
+
         ModelCode = ModelName = Color = Upholstery = MotorPower = string.Empty;
         DoorCount = "4";
         Transmission = "автоматическая";
@@ -166,7 +157,7 @@ public partial class ModelViewModel : ObservableObject
         Price = PrepCost = TransportCost = string.Empty;
         SelectedProducers.Clear();
 
-        LoadModels();
+        Load();
     }
 
     private static bool TryParseMoney(string? text, out decimal value)
@@ -176,21 +167,20 @@ public partial class ModelViewModel : ObservableObject
             System.Globalization.CultureInfo.InvariantCulture, out value);
     }
 
-    private void DeleteModel()
+    private void Delete()
     {
         if (SelectedModel == null) return;
 
-        using var connection = Database.GetConnection();
-        connection.Open();
+        using var db = new AppDbContext();
+        var offers = db.Offers.Where(o => o.ModelId == SelectedModel.ModelId).ToList();
+        db.Offers.RemoveRange(offers);
 
-        // Удаляем связи
-        connection.Execute("DELETE FROM Offer WHERE ModelId = @Id", new { Id = SelectedModel.ModelId });
-        // Удаляем цену
-        connection.Execute("DELETE FROM PriceList WHERE ModelId = @Id", new { Id = SelectedModel.ModelId });
-        // Удаляем модель
-        connection.Execute("DELETE FROM Model WHERE ModelId = @Id", new { Id = SelectedModel.ModelId });
+        var prices = db.PriceLists.Where(p => p.ModelId == SelectedModel.ModelId).ToList();
+        db.PriceLists.RemoveRange(prices);
 
-        LoadModels();
+        db.Models.Remove(SelectedModel);
+        db.SaveChanges();
+        Load();
     }
 
     partial void OnSelectedModelChanged(Model? value)

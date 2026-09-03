@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,4 +10,6 @@ public class Client
     public string FIO { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
+
+    public ICollection<Order> Orders { get; set; } = new List<Order>();
 }

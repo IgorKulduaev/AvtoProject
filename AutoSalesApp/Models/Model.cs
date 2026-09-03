@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,5 +13,9 @@ public class Model
     public string Upholstery { get; set; } = string.Empty;
     public string MotorPower { get; set; } = string.Empty;
     public int DoorCount { get; set; }
-    public string Transmission { get; set; } = string.Empty; // "manual" или "automatic"
+    public string Transmission { get; set; } = string.Empty;
+
+    public PriceList? PriceList { get; set; }
+    public ICollection<Order> Orders { get; set; } = new List<Order>();
+    public ICollection<Offer> Offers { get; set; } = new List<Offer>();
 }

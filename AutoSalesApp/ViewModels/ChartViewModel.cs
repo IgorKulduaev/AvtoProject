@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoSalesApp.Data;
+using AutoSalesApp.Models;
 using AutoSalesApp.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Dapper;
+using Microsoft.EntityFrameworkCore;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.SKCharts;
@@ -57,37 +58,41 @@ public partial class ChartViewModel : ObservableObject
 
     private void LoadData()
     {
-        using var connection = Database.GetConnection();
-        connection.Open();
+        using var db = new AppDbContext();
 
         // 1. Продажи по моделям
-        _modelSales = connection.Query<(string Model, double Count)>(@"
-            SELECT m.ModelName AS Model, COUNT(o.OrderId) AS Count
-            FROM Model m
-            LEFT JOIN [Order] o ON o.ModelId = m.ModelId
-            GROUP BY m.ModelId
-            ORDER BY m.ModelName").ToList();
+        _modelSales = db.Models
+            .Include(m => m.Orders)
+            .OrderBy(m => m.ModelName)
+            .ToList()
+            .Select(m => (Model: m.ModelName, Count: (double)m.Orders.Count))
+            .ToList();
 
         // 2. Доля продаж по поставщикам
-        _producerShare = connection.Query<(string Producer, double Count)>(@"
-            SELECT p.CompanyName AS Producer, COUNT(o.OrderId) AS Count
-            FROM Producer p
-            LEFT JOIN Offer of ON of.ProducerId = p.ProducerId
-            LEFT JOIN [Order] o ON o.ModelId = of.ModelId
-            GROUP BY p.ProducerId
-            ORDER BY p.CompanyName").ToList();
+        _producerShare = db.Producers
+            .Include(p => p.Offers)
+            .ThenInclude(o => o.Model!)
+            .ThenInclude(m => m.Orders)
+            .OrderBy(p => p.CompanyName)
+            .ToList()
+            .Select(p => (Producer: p.CompanyName,
+                Count: (double)p.Offers.SelectMany(o => o.Model!.Orders).Count()))
+            .ToList();
 
-        // 3. Динамика продаж по месяцам (получаем, затем дополняем нулями между месяцами)
-        var raw = connection.Query<(string Month, double Count)>(@"
-            SELECT strftime('%Y-%m', OrderDate) AS Month, COUNT(*) AS Count
-            FROM [Order]
-            GROUP BY Month
-            ORDER BY Month").ToList();
+        // 3. Динамика продаж по месяцам
+        var raw = db.Orders
+            .GroupBy(o => new { o.OrderDate.Year, o.OrderDate.Month })
+            .Select(g => new { Key = $"{g.Key.Year}-{g.Key.Month:D2}", Count = g.Count() })
+            .ToList()
+            .OrderBy(x => x.Key)
+            .Select(x => (Month: x.Key, Count: (double)x.Count))
+            .ToList();
         _monthlySales = FillMonthGaps(raw);
 
-        // 4. Распределение цен (гистограмма, 5 интервалов)
-        var prices = connection.Query<decimal>(@"
-            SELECT (p.Price + p.PrepCost + p.TransportCost) FROM PriceList p").ToList();
+        // 4. Распределение цен (гистограмма)
+        var prices = db.PriceLists
+            .Select(p => p.Price + p.PrepCost + p.TransportCost)
+            .ToList();
         _priceHistogram = BuildHistogram(prices, 5);
 
         BuildSeries();

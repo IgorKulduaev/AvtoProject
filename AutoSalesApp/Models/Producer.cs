@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,4 +12,6 @@ public class Producer
     public string Phone { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string? Website { get; set; }
+
+    public ICollection<Offer> Offers { get; set; } = new List<Offer>();
 }

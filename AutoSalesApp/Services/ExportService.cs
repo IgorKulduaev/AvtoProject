@@ -3,7 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using AutoSalesApp.Data;
-using Dapper;
+using AutoSalesApp.Models;
+using Microsoft.EntityFrameworkCore;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using LiveChartsCore.SkiaSharpView;
@@ -20,49 +21,40 @@ public static class ExportService
     /// entity: "producers" | "models" | "offers" | "pricelist" | "clients" | "sales"
     public static string ExportCsv(string path, string entity)
     {
-        using var connection = Database.GetConnection();
+        using var db = new AppDbContext();
         var sb = new StringBuilder();
 
         switch (entity)
         {
             case "producers":
                 sb.AppendLine("Код;Название;Телефон;Email;Web-сайт");
-                foreach (var r in connection.Query("SELECT * FROM Producer"))
+                foreach (var r in db.Producers)
                     sb.AppendLine($"{r.CompanyCode};{r.CompanyName};{r.Phone};{r.Email};{r.Website ?? ""}");
                 break;
             case "models":
                 sb.AppendLine("Код;Наименование;Цвет;Обивка;Мощность;Кол-во дверей;КПП");
-                foreach (var r in connection.Query("SELECT * FROM Model"))
+                foreach (var r in db.Models)
                     sb.AppendLine($"{r.ModelCode};{r.ModelName};{r.Color};{r.Upholstery};{r.MotorPower};{r.DoorCount};{r.Transmission}");
                 break;
             case "offers":
                 sb.AppendLine("Код поставщика;Код модели");
-                foreach (var r in connection.Query(
-                             @"SELECT p.CompanyCode, m.ModelCode FROM Offer of
-                               JOIN Producer p ON p.ProducerId = of.ProducerId
-                               JOIN Model m ON m.ModelId = of.ModelId"))
-                    sb.AppendLine($"{r.CompanyCode};{r.ModelCode}");
+                foreach (var r in db.Offers.Include(o => o.Producer).Include(o => o.Model))
+                    sb.AppendLine($"{r.Producer!.CompanyCode};{r.Model!.ModelCode}");
                 break;
             case "pricelist":
                 sb.AppendLine("Код модели;Год;Цена;Подготовка;Транспорт");
-                foreach (var r in connection.Query(
-                             @"SELECT m.ModelCode, p.YearOfManufacture, p.Price, p.PrepCost, p.TransportCost
-                               FROM PriceList p JOIN Model m ON m.ModelId = p.ModelId"))
-                    sb.AppendLine($"{r.ModelCode};{r.YearOfManufacture};{r.Price};{r.PrepCost};{r.TransportCost}");
+                foreach (var r in db.PriceLists.Include(p => p.Model))
+                    sb.AppendLine($"{r.Model!.ModelCode};{r.YearOfManufacture};{r.Price};{r.PrepCost};{r.TransportCost}");
                 break;
             case "clients":
                 sb.AppendLine("ФИО;Телефон;Адрес");
-                foreach (var r in connection.Query("SELECT * FROM Client"))
+                foreach (var r in db.Clients)
                     sb.AppendLine($"{r.FIO};{r.Phone};{r.Address}");
                 break;
             case "sales":
                 sb.AppendLine("Договор;ФИО;Модель;Дата;Полная стоимость");
-                foreach (var r in connection.Query(
-                             @"SELECT o.OrderNumber, c.FIO, m.ModelCode, o.OrderDate, o.TotalCost
-                               FROM [Order] o
-                               JOIN Client c ON c.ClientId = o.ClientId
-                               JOIN Model m ON m.ModelId = o.ModelId"))
-                    sb.AppendLine($"{r.OrderNumber};{r.FIO};{r.ModelCode};{r.OrderDate};{r.TotalCost}");
+                foreach (var r in db.Orders.Include(o => o.Client).Include(o => o.Model))
+                    sb.AppendLine($"{r.OrderNumber};{r.Client!.FIO};{r.Model!.ModelCode};{r.OrderDate:dd.MM.yyyy};{r.TotalCost}");
                 break;
         }
 
@@ -75,49 +67,43 @@ public static class ExportService
     public static string ExportExcel(string path)
     {
         ImportService.SetExcelLicense();
-        using var connection = Database.GetConnection();
+        using var db = new AppDbContext();
         using var package = new ExcelPackage();
 
         AddSheet(package, "Поставщики",
             new[] { "Код фирмы", "Название", "Телефон", "Email", "Web-сайт" },
-            connection.Query("SELECT * FROM Producer").Select(r =>
+            db.Producers.ToList().Select(r =>
                 new object?[] { r.CompanyCode, r.CompanyName, r.Phone, r.Email, r.Website }),
             moneyColumns: Array.Empty<int>());
 
         AddSheet(package, "Модели",
             new[] { "Код модели", "Наименование", "Цвет", "Обивка", "Мощность", "Кол-во дверей", "КПП" },
-            connection.Query("SELECT * FROM Model").Select(r =>
+            db.Models.ToList().Select(r =>
                 new object?[] { r.ModelCode, r.ModelName, r.Color, r.Upholstery, r.MotorPower, r.DoorCount, r.Transmission }),
             moneyColumns: Array.Empty<int>());
 
         AddSheet(package, "Связи",
             new[] { "Код поставщика", "Код модели" },
-            connection.Query(@"SELECT p.CompanyCode, m.ModelCode FROM Offer of
-                               JOIN Producer p ON p.ProducerId = of.ProducerId
-                               JOIN Model m ON m.ModelId = of.ModelId").Select(r =>
-                new object?[] { r.CompanyCode, r.ModelCode }),
+            db.Offers.Include(o => o.Producer).Include(o => o.Model).ToList().Select(r =>
+                new object?[] { r.Producer!.CompanyCode, r.Model!.ModelCode }),
             moneyColumns: Array.Empty<int>());
 
         AddSheet(package, "Прейскурант",
             new[] { "Код модели", "Год", "Цена (у.е.)", "Подготовка (у.е.)", "Транспорт (у.е.)" },
-            connection.Query(@"SELECT m.ModelCode, p.YearOfManufacture, p.Price, p.PrepCost, p.TransportCost
-                               FROM PriceList p JOIN Model m ON m.ModelId = p.ModelId").Select(r =>
-                new object?[] { r.ModelCode, r.YearOfManufacture, r.Price, r.PrepCost, r.TransportCost }),
+            db.PriceLists.Include(p => p.Model).ToList().Select(r =>
+                new object?[] { r.Model!.ModelCode, r.YearOfManufacture, r.Price, r.PrepCost, r.TransportCost }),
             moneyColumns: new[] { 2, 3, 4 });
 
         AddSheet(package, "Клиенты",
             new[] { "Ф.И.О.", "Телефон", "Адрес" },
-            connection.Query("SELECT * FROM Client").Select(r =>
+            db.Clients.ToList().Select(r =>
                 new object?[] { r.FIO, r.Phone, r.Address }),
             moneyColumns: Array.Empty<int>());
 
         AddSheet(package, "Продажи",
             new[] { "Договор", "Ф.И.О.", "Модель", "Дата", "Полная стоимость (у.е.)" },
-            connection.Query(@"SELECT o.OrderNumber, c.FIO, m.ModelName, o.OrderDate, o.TotalCost
-                               FROM [Order] o
-                               JOIN Client c ON c.ClientId = o.ClientId
-                               JOIN Model m ON m.ModelId = o.ModelId").Select(r =>
-                new object?[] { r.OrderNumber, r.FIO, r.ModelName, r.OrderDate, r.TotalCost }),
+            db.Orders.Include(o => o.Client).Include(o => o.Model).ToList().Select(r =>
+                new object?[] { r.OrderNumber, r.Client!.FIO, r.Model!.ModelName, r.OrderDate, r.TotalCost }),
             moneyColumns: new[] { 4 });
 
         package.SaveAs(new FileInfo(path));
@@ -156,33 +142,52 @@ public static class ExportService
 
     public static string ExportPdf(string path)
     {
-        using var connection = Database.GetConnection();
+        using var db = new AppDbContext();
 
-        var suppliers = connection.Query(@"
-            SELECT p.CompanyName, p.Phone, p.Email,
-                   COUNT(DISTINCT of.ModelId) AS ModelsCount,
-                   COUNT(o.OrderId) AS SoldCount
-            FROM Producer p
-            LEFT JOIN Offer of ON of.ProducerId = p.ProducerId
-            LEFT JOIN [Order] o ON o.ModelId = of.ModelId
-            GROUP BY p.ProducerId
-            ORDER BY p.CompanyName").ToList();
+        var suppliers = db.Producers
+            .OrderBy(p => p.CompanyName)
+            .ToList()
+            .Select(p => new
+            {
+                p.CompanyName,
+                p.Phone,
+                p.Email,
+                ModelsCount = db.Offers.Count(o => o.ProducerId == p.ProducerId),
+                SoldCount = db.Offers
+                    .Where(o => o.ProducerId == p.ProducerId)
+                    .Select(o => o.ModelId)
+                    .Distinct()
+                    .Sum(mid => db.Orders.Count(o2 => o2.ModelId == mid))
+            })
+            .ToList();
 
-        var models = connection.Query(@"
-            SELECT m.ModelName, p.YearOfManufacture,
-                   p.Price, p.PrepCost, p.TransportCost,
-                   (p.Price + p.PrepCost + p.TransportCost) AS TotalCost,
-                   (SELECT COUNT(*) FROM [Order] o WHERE o.ModelId = m.ModelId) AS SoldCount
-            FROM Model m
-            JOIN PriceList p ON p.ModelId = m.ModelId
-            ORDER BY m.ModelName").ToList();
+        var models = db.Models
+            .Include(m => m.PriceList)
+            .OrderBy(m => m.ModelName)
+            .ToList()
+            .Where(m => m.PriceList != null)
+            .Select(m => new
+            {
+                m.ModelName,
+                m.PriceList!.YearOfManufacture,
+                m.PriceList.Price,
+                m.PriceList.PrepCost,
+                m.PriceList.TransportCost,
+                TotalCost = m.PriceList.Price + m.PriceList.PrepCost + m.PriceList.TransportCost,
+                SoldCount = db.Orders.Count(o => o.ModelId == m.ModelId)
+            })
+            .ToList();
 
-        var monthly = connection.Query<(string Month, double Count)>(@"
-            SELECT strftime('%Y-%m', OrderDate) AS Month, COUNT(*) AS Count
-            FROM [Order] GROUP BY Month ORDER BY Month").ToList();
+        var monthly = db.Orders
+            .GroupBy(o => new { o.OrderDate.Year, o.OrderDate.Month })
+            .Select(g => new { Month = $"{g.Key.Year}-{g.Key.Month:D2}", Count = g.Count() })
+            .ToList()
+            .OrderBy(x => x.Month)
+            .Select(x => (Month: x.Month, Count: (double)x.Count))
+            .ToList();
 
-        var totalSold = connection.ExecuteScalar<int>("SELECT COUNT(*) FROM [Order]");
-        var totalRevenue = connection.ExecuteScalar<decimal?>("SELECT SUM(TotalCost) FROM [Order]") ?? 0;
+        var totalSold = db.Orders.Count();
+        var totalRevenue = db.Orders.Sum(o => (decimal?)o.TotalCost) ?? 0;
 
         var font = CreateBaseFont();
         var titleFont = new Font(font, 16f, Font.BOLD);

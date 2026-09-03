@@ -15,11 +15,13 @@
           "Avalonia.Themes.Fluent": "12.1.1",
           "AvaloniaUI.DiagnosticsSupport": "2.2.3",
           "CommunityToolkit.Mvvm": "8.4.2",
-          "Dapper": "2.1.79",
           "EPPlus": "8.7.0",
-          "LiveChartsCore.SkiaSharpView.Avalonia": "2.0.5",
-          "Microsoft.Data.Sqlite": "10.0.11",
+          "LiveChartsCore.SkiaSharpView.Avalonia": "2.1.0-dev-798",
+          "Microsoft.EntityFrameworkCore.Sqlite": "10.0.11",
           "Newtonsoft.Json": "13.0.4",
+          "SkiaSharp.NativeAssets.Linux": "4.151.1",
+          "SkiaSharp.NativeAssets.Win32": "4.151.1",
+          "SkiaSharp.NativeAssets.macOS": "4.151.1",
           "iTextSharp.LGPLv2.Core": "3.8.5"
         },
         "runtime": {
@@ -83,17 +85,17 @@
           "runtimes/win-arm64/native/av_libglesv2.dll": {
             "rid": "win-arm64",
             "assetType": "native",
-            "fileVersion": "2.1.1.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x64/native/av_libglesv2.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "2.1.1.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x86/native/av_libglesv2.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "2.1.1.0"
+            "fileVersion": "0.0.0.0"
           }
         }
       },
@@ -203,7 +205,7 @@
           "HarfBuzzSharp": "8.3.1.3",
           "HarfBuzzSharp.NativeAssets.Linux": "8.3.1.3",
           "SkiaSharp": "4.151.1",
-          "SkiaSharp.NativeAssets.Linux": "3.119.4"
+          "SkiaSharp.NativeAssets.Linux": "4.151.1"
         },
         "runtime": {
           "lib/net10.0/Avalonia.Skia.dll": {
@@ -255,7 +257,7 @@
       },
       "AvaloniaUI.DiagnosticsSupport/2.2.3": {
         "dependencies": {
-          "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.11",
           "Microsoft.IO.RecyclableMemoryStream": "3.0.1"
         },
         "runtime": {
@@ -278,14 +280,6 @@
           "lib/net8.0/CommunityToolkit.Mvvm.dll": {
             "assemblyVersion": "8.4.0.0",
             "fileVersion": "8.4.2.1"
-          }
-        }
-      },
-      "Dapper/2.1.79": {
-        "runtime": {
-          "lib/net10.0/Dapper.dll": {
-            "assemblyVersion": "2.0.0.0",
-            "fileVersion": "2.1.79.29349"
           }
         }
       },
@@ -438,37 +432,37 @@
           }
         }
       },
-      "LiveChartsCore/2.0.5": {
+      "LiveChartsCore/2.1.0-dev-798": {
         "runtime": {
           "lib/net8.0/LiveChartsCore.dll": {
-            "assemblyVersion": "2.0.5.0",
-            "fileVersion": "2.0.5.0"
+            "assemblyVersion": "2.1.0.0",
+            "fileVersion": "2.1.0.0"
           }
         }
       },
-      "LiveChartsCore.SkiaSharpView/2.0.5": {
+      "LiveChartsCore.SkiaSharpView/2.1.0-dev-798": {
         "dependencies": {
-          "LiveChartsCore": "2.0.5",
+          "LiveChartsCore": "2.1.0-dev-798",
           "SkiaSharp": "4.151.1",
           "SkiaSharp.HarfBuzz": "2.88.9"
         },
         "runtime": {
           "lib/net8.0/LiveChartsCore.SkiaSharpView.dll": {
-            "assemblyVersion": "2.0.5.0",
-            "fileVersion": "2.0.5.0"
+            "assemblyVersion": "2.1.0.0",
+            "fileVersion": "2.1.0.0"
           }
         }
       },
-      "LiveChartsCore.SkiaSharpView.Avalonia/2.0.5": {
+      "LiveChartsCore.SkiaSharpView.Avalonia/2.1.0-dev-798": {
         "dependencies": {
           "Avalonia": "12.1.1",
           "Avalonia.Skia": "12.1.1",
-          "LiveChartsCore.SkiaSharpView": "2.0.5"
+          "LiveChartsCore.SkiaSharpView": "2.1.0-dev-798"
         },
         "runtime": {
-          "lib/net8.0/LiveChartsCore.SkiaSharpView.Avalonia.dll": {
-            "assemblyVersion": "2.0.5.0",
-            "fileVersion": "2.0.5.0"
+          "lib/net10.0/LiveChartsCore.SkiaSharpView.Avalonia.dll": {
+            "assemblyVersion": "2.1.0.0",
+            "fileVersion": "2.1.0.0"
           }
         }
       },
@@ -478,13 +472,6 @@
             "assemblyVersion": "0.11.6.0",
             "fileVersion": "0.11.6.0"
           }
-        }
-      },
-      "Microsoft.Data.Sqlite/10.0.11": {
-        "dependencies": {
-          "Microsoft.Data.Sqlite.Core": "10.0.11",
-          "SQLitePCLRaw.bundle_e_sqlite3": "2.1.12",
-          "SQLitePCLRaw.core": "2.1.12"
         }
       },
       "Microsoft.Data.Sqlite.Core/10.0.11": {
@@ -498,10 +485,99 @@
           }
         }
       },
+      "Microsoft.EntityFrameworkCore/10.0.11": {
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Abstractions": "10.0.11",
+          "Microsoft.Extensions.Caching.Memory": "10.0.11",
+          "Microsoft.Extensions.Logging": "10.0.11"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.EntityFrameworkCore.dll": {
+            "assemblyVersion": "10.0.11.0",
+            "fileVersion": "10.0.1126.37416"
+          }
+        }
+      },
+      "Microsoft.EntityFrameworkCore.Abstractions/10.0.11": {
+        "runtime": {
+          "lib/net10.0/Microsoft.EntityFrameworkCore.Abstractions.dll": {
+            "assemblyVersion": "10.0.11.0",
+            "fileVersion": "10.0.1126.37416"
+          }
+        }
+      },
+      "Microsoft.EntityFrameworkCore.Relational/10.0.11": {
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore": "10.0.11",
+          "Microsoft.Extensions.Caching.Memory": "10.0.11",
+          "Microsoft.Extensions.Configuration.Abstractions": "10.0.11",
+          "Microsoft.Extensions.Logging": "10.0.11"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.EntityFrameworkCore.Relational.dll": {
+            "assemblyVersion": "10.0.11.0",
+            "fileVersion": "10.0.1126.37416"
+          }
+        }
+      },
+      "Microsoft.EntityFrameworkCore.Sqlite/10.0.11": {
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Sqlite.Core": "10.0.11",
+          "Microsoft.Extensions.Caching.Memory": "10.0.11",
+          "Microsoft.Extensions.Configuration.Abstractions": "10.0.11",
+          "Microsoft.Extensions.DependencyModel": "10.0.11",
+          "Microsoft.Extensions.Logging": "10.0.11",
+          "SQLitePCLRaw.bundle_e_sqlite3": "2.1.12",
+          "SQLitePCLRaw.core": "2.1.12"
+        }
+      },
+      "Microsoft.EntityFrameworkCore.Sqlite.Core/10.0.11": {
+        "dependencies": {
+          "Microsoft.Data.Sqlite.Core": "10.0.11",
+          "Microsoft.EntityFrameworkCore.Relational": "10.0.11",
+          "Microsoft.Extensions.Caching.Memory": "10.0.11",
+          "Microsoft.Extensions.Configuration.Abstractions": "10.0.11",
+          "Microsoft.Extensions.DependencyModel": "10.0.11",
+          "Microsoft.Extensions.Logging": "10.0.11",
+          "SQLitePCLRaw.core": "2.1.12"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.EntityFrameworkCore.Sqlite.dll": {
+            "assemblyVersion": "10.0.11.0",
+            "fileVersion": "10.0.1126.37416"
+          }
+        }
+      },
+      "Microsoft.Extensions.Caching.Abstractions/10.0.11": {
+        "dependencies": {
+          "Microsoft.Extensions.Primitives": "10.0.11"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.Extensions.Caching.Abstractions.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.1126.37416"
+          }
+        }
+      },
+      "Microsoft.Extensions.Caching.Memory/10.0.11": {
+        "dependencies": {
+          "Microsoft.Extensions.Caching.Abstractions": "10.0.11",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.11",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.11",
+          "Microsoft.Extensions.Options": "10.0.11",
+          "Microsoft.Extensions.Primitives": "10.0.11"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.Extensions.Caching.Memory.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.1126.37416"
+          }
+        }
+      },
       "Microsoft.Extensions.Configuration/10.0.10": {
         "dependencies": {
-          "Microsoft.Extensions.Configuration.Abstractions": "10.0.10",
-          "Microsoft.Extensions.Primitives": "10.0.10"
+          "Microsoft.Extensions.Configuration.Abstractions": "10.0.11",
+          "Microsoft.Extensions.Primitives": "10.0.11"
         },
         "runtime": {
           "lib/net10.0/Microsoft.Extensions.Configuration.dll": {
@@ -510,24 +586,24 @@
           }
         }
       },
-      "Microsoft.Extensions.Configuration.Abstractions/10.0.10": {
+      "Microsoft.Extensions.Configuration.Abstractions/10.0.11": {
         "dependencies": {
-          "Microsoft.Extensions.Primitives": "10.0.10"
+          "Microsoft.Extensions.Primitives": "10.0.11"
         },
         "runtime": {
           "lib/net10.0/Microsoft.Extensions.Configuration.Abstractions.dll": {
             "assemblyVersion": "10.0.0.0",
-            "fileVersion": "10.0.1026.32716"
+            "fileVersion": "10.0.1126.37416"
           }
         }
       },
       "Microsoft.Extensions.Configuration.FileExtensions/10.0.10": {
         "dependencies": {
           "Microsoft.Extensions.Configuration": "10.0.10",
-          "Microsoft.Extensions.Configuration.Abstractions": "10.0.10",
+          "Microsoft.Extensions.Configuration.Abstractions": "10.0.11",
           "Microsoft.Extensions.FileProviders.Abstractions": "10.0.10",
           "Microsoft.Extensions.FileProviders.Physical": "10.0.10",
-          "Microsoft.Extensions.Primitives": "10.0.10"
+          "Microsoft.Extensions.Primitives": "10.0.11"
         },
         "runtime": {
           "lib/net10.0/Microsoft.Extensions.Configuration.FileExtensions.dll": {
@@ -539,7 +615,7 @@
       "Microsoft.Extensions.Configuration.Json/10.0.10": {
         "dependencies": {
           "Microsoft.Extensions.Configuration": "10.0.10",
-          "Microsoft.Extensions.Configuration.Abstractions": "10.0.10",
+          "Microsoft.Extensions.Configuration.Abstractions": "10.0.11",
           "Microsoft.Extensions.Configuration.FileExtensions": "10.0.10",
           "Microsoft.Extensions.FileProviders.Abstractions": "10.0.10"
         },
@@ -550,17 +626,36 @@
           }
         }
       },
-      "Microsoft.Extensions.DependencyInjection.Abstractions/8.0.0": {
+      "Microsoft.Extensions.DependencyInjection/10.0.11": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.11"
+        },
         "runtime": {
-          "lib/net8.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
-            "assemblyVersion": "8.0.0.0",
-            "fileVersion": "8.0.23.53103"
+          "lib/net10.0/Microsoft.Extensions.DependencyInjection.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.1126.37416"
+          }
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions/10.0.11": {
+        "runtime": {
+          "lib/net10.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.1126.37416"
+          }
+        }
+      },
+      "Microsoft.Extensions.DependencyModel/10.0.11": {
+        "runtime": {
+          "lib/net10.0/Microsoft.Extensions.DependencyModel.dll": {
+            "assemblyVersion": "10.0.0.11",
+            "fileVersion": "10.0.1126.37416"
           }
         }
       },
       "Microsoft.Extensions.FileProviders.Abstractions/10.0.10": {
         "dependencies": {
-          "Microsoft.Extensions.Primitives": "10.0.10"
+          "Microsoft.Extensions.Primitives": "10.0.11"
         },
         "runtime": {
           "lib/net10.0/Microsoft.Extensions.FileProviders.Abstractions.dll": {
@@ -573,7 +668,7 @@
         "dependencies": {
           "Microsoft.Extensions.FileProviders.Abstractions": "10.0.10",
           "Microsoft.Extensions.FileSystemGlobbing": "10.0.10",
-          "Microsoft.Extensions.Primitives": "10.0.10"
+          "Microsoft.Extensions.Primitives": "10.0.11"
         },
         "runtime": {
           "lib/net10.0/Microsoft.Extensions.FileProviders.Physical.dll": {
@@ -590,22 +685,47 @@
           }
         }
       },
-      "Microsoft.Extensions.Logging.Abstractions/8.0.0": {
+      "Microsoft.Extensions.Logging/10.0.11": {
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0"
+          "Microsoft.Extensions.DependencyInjection": "10.0.11",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.11",
+          "Microsoft.Extensions.Options": "10.0.11"
         },
         "runtime": {
-          "lib/net8.0/Microsoft.Extensions.Logging.Abstractions.dll": {
-            "assemblyVersion": "8.0.0.0",
-            "fileVersion": "8.0.23.53103"
+          "lib/net10.0/Microsoft.Extensions.Logging.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.1126.37416"
           }
         }
       },
-      "Microsoft.Extensions.Primitives/10.0.10": {
+      "Microsoft.Extensions.Logging.Abstractions/10.0.11": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.11"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.Extensions.Logging.Abstractions.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.1126.37416"
+          }
+        }
+      },
+      "Microsoft.Extensions.Options/10.0.11": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.11",
+          "Microsoft.Extensions.Primitives": "10.0.11"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.Extensions.Options.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.1126.37416"
+          }
+        }
+      },
+      "Microsoft.Extensions.Primitives/10.0.11": {
         "runtime": {
           "lib/net10.0/Microsoft.Extensions.Primitives.dll": {
             "assemblyVersion": "10.0.0.0",
-            "fileVersion": "10.0.1026.32716"
+            "fileVersion": "10.0.1126.37416"
           }
         }
       },
@@ -649,7 +769,7 @@
           }
         }
       },
-      "SkiaSharp.NativeAssets.Linux/3.119.4": {
+      "SkiaSharp.NativeAssets.Linux/4.151.1": {
         "runtimeTargets": {
           "runtimes/linux-arm/native/libSkiaSharp.so": {
             "rid": "linux-arm",
@@ -881,17 +1001,17 @@
           "runtimes/win-arm64/native/e_sqlite3.dll": {
             "rid": "win-arm64",
             "assetType": "native",
-            "fileVersion": "3.53.3.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x64/native/e_sqlite3.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "3.53.3.0"
+            "fileVersion": "0.0.0.0"
           },
           "runtimes/win-x86/native/e_sqlite3.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "3.53.3.0"
+            "fileVersion": "0.0.0.0"
           }
         }
       },
@@ -1068,13 +1188,6 @@
       "path": "communitytoolkit.mvvm/8.4.2",
       "hashPath": "communitytoolkit.mvvm.8.4.2.nupkg.sha512"
     },
-    "Dapper/2.1.79": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-8YijbzgTfmqmQOnVNorYM6K++pxqnW3nJ4aC1sRHzxUA2CcuoJ9gsTem3kgBnPRMc38zZHl4Esb6hAezXIEEuw==",
-      "path": "dapper/2.1.79",
-      "hashPath": "dapper.2.1.79.nupkg.sha512"
-    },
     "EPPlus/8.7.0": {
       "type": "package",
       "serviceable": true,
@@ -1124,26 +1237,26 @@
       "path": "itextsharp.lgplv2.core/3.8.5",
       "hashPath": "itextsharp.lgplv2.core.3.8.5.nupkg.sha512"
     },
-    "LiveChartsCore/2.0.5": {
+    "LiveChartsCore/2.1.0-dev-798": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-cbGiOyGxO+fsWLvrQ4R6Rd8QHfkRGyhxyD6nBSk8/ZwKKtU+vWSqlC4ESgwKSUbrzvK8ooU/yfFJpjHXzPd+vA==",
-      "path": "livechartscore/2.0.5",
-      "hashPath": "livechartscore.2.0.5.nupkg.sha512"
+      "sha512": "sha512-li2dRz6KwwJvcILkqcSetiIwfEknCV40f11mhljM7Qkrrzyyy9D+i3mF+a8Oc5wWjHb90pR8WAMiGzU3bWANnQ==",
+      "path": "livechartscore/2.1.0-dev-798",
+      "hashPath": "livechartscore.2.1.0-dev-798.nupkg.sha512"
     },
-    "LiveChartsCore.SkiaSharpView/2.0.5": {
+    "LiveChartsCore.SkiaSharpView/2.1.0-dev-798": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-YgRhisuVev2RocHqq7d9juSBGBlMLKYQA5ijEuD/sWeV39dCBInBK4RSfqBYTuNNWs5Fe+NA+F0TCIWJ2t1Cew==",
-      "path": "livechartscore.skiasharpview/2.0.5",
-      "hashPath": "livechartscore.skiasharpview.2.0.5.nupkg.sha512"
+      "sha512": "sha512-AG9Bxny/7EGoZhxCwbotl3anYoV5vk300X/HQiTkOiT1w2Irism7gOPuXJInPVdxqGNmlrDyM06oVCvdFJuvVA==",
+      "path": "livechartscore.skiasharpview/2.1.0-dev-798",
+      "hashPath": "livechartscore.skiasharpview.2.1.0-dev-798.nupkg.sha512"
     },
-    "LiveChartsCore.SkiaSharpView.Avalonia/2.0.5": {
+    "LiveChartsCore.SkiaSharpView.Avalonia/2.1.0-dev-798": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-gwqV/H5EWhk8KIwc8/4sdPVjsdJ5RpOC5Pfmd1lKIYltCntJQeZTcn1kC4mKykN+eU+BlT0W/grA3xioXdP7iA==",
-      "path": "livechartscore.skiasharpview.avalonia/2.0.5",
-      "hashPath": "livechartscore.skiasharpview.avalonia.2.0.5.nupkg.sha512"
+      "sha512": "sha512-O/fO9hcW68sbPRKe4WKCxCIYpZHBnogoN8hDS6WKhJ+nZJV9y5faTcEpiDvLQxWubdnbqumiTLDsViKeqg7i5g==",
+      "path": "livechartscore.skiasharpview.avalonia/2.1.0-dev-798",
+      "hashPath": "livechartscore.skiasharpview.avalonia.2.1.0-dev-798.nupkg.sha512"
     },
     "MicroCom.Runtime/0.11.6": {
       "type": "package",
@@ -1152,19 +1265,61 @@
       "path": "microcom.runtime/0.11.6",
       "hashPath": "microcom.runtime.0.11.6.nupkg.sha512"
     },
-    "Microsoft.Data.Sqlite/10.0.11": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-7je7UELzm131GiLYc4PpZvfKXIgIyzPM+v+tjcd/nbnuWRfgcONYKzDTqJlURxwVCFsVnlpmq6y6yn4qvR8QXQ==",
-      "path": "microsoft.data.sqlite/10.0.11",
-      "hashPath": "microsoft.data.sqlite.10.0.11.nupkg.sha512"
-    },
     "Microsoft.Data.Sqlite.Core/10.0.11": {
       "type": "package",
       "serviceable": true,
       "sha512": "sha512-hubA20AGenQ4Sx0ElWaPpB8DISjXpdx463+1zOGRslsT0e/t/06ITv+pHsop8CcJ0d8PZLfgnT7juCDVD79Dkw==",
       "path": "microsoft.data.sqlite.core/10.0.11",
       "hashPath": "microsoft.data.sqlite.core.10.0.11.nupkg.sha512"
+    },
+    "Microsoft.EntityFrameworkCore/10.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-VOSGU8en6HZJs8t7UMFN+9vGcRgVOOn6fA44Ngcg2NyvJ3P1KE94iAb0XzaVaGhXGtt+qaM/VtEn0/hzluQJeg==",
+      "path": "microsoft.entityframeworkcore/10.0.11",
+      "hashPath": "microsoft.entityframeworkcore.10.0.11.nupkg.sha512"
+    },
+    "Microsoft.EntityFrameworkCore.Abstractions/10.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-6auJR+9+9VunznKfH7WGrHMrnrmA0F7JZ22EXzwXvVhjfnbu9Xq7NSIWaOf3KJsOanM2qf5ajJ2JR5TlcPZTLA==",
+      "path": "microsoft.entityframeworkcore.abstractions/10.0.11",
+      "hashPath": "microsoft.entityframeworkcore.abstractions.10.0.11.nupkg.sha512"
+    },
+    "Microsoft.EntityFrameworkCore.Relational/10.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-grznnTJgEYxaWpdKAsTzg6j+89jHgCXWYp+QGtlX5O92+w/VuhWM6JLPYb+uw8M9VhGUvOTsO76dYOy9vNPd5Q==",
+      "path": "microsoft.entityframeworkcore.relational/10.0.11",
+      "hashPath": "microsoft.entityframeworkcore.relational.10.0.11.nupkg.sha512"
+    },
+    "Microsoft.EntityFrameworkCore.Sqlite/10.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-jc7iVrhQyInR3loraMESfEFaFOtQOB1mRKHjX6QYC9o7YDbfMNbAPnIwlpffnFwhXd6/27FKaaV+sWSoLd4F1g==",
+      "path": "microsoft.entityframeworkcore.sqlite/10.0.11",
+      "hashPath": "microsoft.entityframeworkcore.sqlite.10.0.11.nupkg.sha512"
+    },
+    "Microsoft.EntityFrameworkCore.Sqlite.Core/10.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ywTQKt32xnVhCzjEQAqFufpEyXkOUfvW/EC/s4xnS8Xaor2xXE+TMUyzhgACqXtZEU5IR95y94RDzHto55Fx7w==",
+      "path": "microsoft.entityframeworkcore.sqlite.core/10.0.11",
+      "hashPath": "microsoft.entityframeworkcore.sqlite.core.10.0.11.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Caching.Abstractions/10.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-vUl798SmruTqqlt/xH2gDk3tJlhk6k3HdOXAHirlRfbNKDym4g/kRpUL9S4sl6F6FsOTOMW+ZsDapqlZMOOiEw==",
+      "path": "microsoft.extensions.caching.abstractions/10.0.11",
+      "hashPath": "microsoft.extensions.caching.abstractions.10.0.11.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Caching.Memory/10.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-el1g0mBEbDBGY2bT9mcSfrTWO8QlPdq2nOCnvQugioOFwHV+bVBMeiakoI0dNOdj8d6Hi9K6HY2xzRUWJiDR3w==",
+      "path": "microsoft.extensions.caching.memory/10.0.11",
+      "hashPath": "microsoft.extensions.caching.memory.10.0.11.nupkg.sha512"
     },
     "Microsoft.Extensions.Configuration/10.0.10": {
       "type": "package",
@@ -1173,12 +1328,12 @@
       "path": "microsoft.extensions.configuration/10.0.10",
       "hashPath": "microsoft.extensions.configuration.10.0.10.nupkg.sha512"
     },
-    "Microsoft.Extensions.Configuration.Abstractions/10.0.10": {
+    "Microsoft.Extensions.Configuration.Abstractions/10.0.11": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-5Vnd2I75DmZCVEjSynIdJ/0EGafgnLQwgR3t2C2/fkjx/nRG+cLwxLLdInoHeCEpkD5K4Ov/g9ZCRYrl4TRsaA==",
-      "path": "microsoft.extensions.configuration.abstractions/10.0.10",
-      "hashPath": "microsoft.extensions.configuration.abstractions.10.0.10.nupkg.sha512"
+      "sha512": "sha512-fVi053xdpda9Em7vSkmgVxO/PtgC2m78ekReKWsgcyskqY0U82Bz/MONwxpGzI0hElYKJfw+fupqMVeKW3fSaA==",
+      "path": "microsoft.extensions.configuration.abstractions/10.0.11",
+      "hashPath": "microsoft.extensions.configuration.abstractions.10.0.11.nupkg.sha512"
     },
     "Microsoft.Extensions.Configuration.FileExtensions/10.0.10": {
       "type": "package",
@@ -1194,12 +1349,26 @@
       "path": "microsoft.extensions.configuration.json/10.0.10",
       "hashPath": "microsoft.extensions.configuration.json.10.0.10.nupkg.sha512"
     },
-    "Microsoft.Extensions.DependencyInjection.Abstractions/8.0.0": {
+    "Microsoft.Extensions.DependencyInjection/10.0.11": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-cjWrLkJXK0rs4zofsK4bSdg+jhDLTaxrkXu4gS6Y7MAlCvRyNNgwY/lJi5RDlQOnSZweHqoyvgvbdvQsRIW+hg==",
-      "path": "microsoft.extensions.dependencyinjection.abstractions/8.0.0",
-      "hashPath": "microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512"
+      "sha512": "sha512-PSmotV19c7E3lKed++uYo1kSiXFI+uTl37CBSrhq+CfLC3FCHjG7R91+xPnNehQfHS1b0Tzo/CCLPWH3qaEheg==",
+      "path": "microsoft.extensions.dependencyinjection/10.0.11",
+      "hashPath": "microsoft.extensions.dependencyinjection.10.0.11.nupkg.sha512"
+    },
+    "Microsoft.Extensions.DependencyInjection.Abstractions/10.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-/a1aJz4m7ylhEDf25ugQChLQoN5XwoGjWw/BoR/ZWWKsO1v4DdJElS1uyngahz4B/eOzjFk1KNTkarRLE5wsIg==",
+      "path": "microsoft.extensions.dependencyinjection.abstractions/10.0.11",
+      "hashPath": "microsoft.extensions.dependencyinjection.abstractions.10.0.11.nupkg.sha512"
+    },
+    "Microsoft.Extensions.DependencyModel/10.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-PJPtFYsZ+r+uz9qqXWUTEyKeJ1EiBGIJtqavkg9ZXijjGSFAk4Fgi5sqIxj+uAyLZwEKgexDUQXhWhvU6l3+og==",
+      "path": "microsoft.extensions.dependencymodel/10.0.11",
+      "hashPath": "microsoft.extensions.dependencymodel.10.0.11.nupkg.sha512"
     },
     "Microsoft.Extensions.FileProviders.Abstractions/10.0.10": {
       "type": "package",
@@ -1222,19 +1391,33 @@
       "path": "microsoft.extensions.filesystemglobbing/10.0.10",
       "hashPath": "microsoft.extensions.filesystemglobbing.10.0.10.nupkg.sha512"
     },
-    "Microsoft.Extensions.Logging.Abstractions/8.0.0": {
+    "Microsoft.Extensions.Logging/10.0.11": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-arDBqTgFCyS0EvRV7O3MZturChstm50OJ0y9bDJvAcmEPJm0FFpFyjU/JLYyStNGGey081DvnQYlncNX5SJJGA==",
-      "path": "microsoft.extensions.logging.abstractions/8.0.0",
-      "hashPath": "microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512"
+      "sha512": "sha512-nUOJwgFkSiLHiVGFpU22pIJtuWYewuSYQ3JVuP/gdK8ASMT807Px+TYQiRWs6uSsOmoyFTaVCwKXTasczV6BpA==",
+      "path": "microsoft.extensions.logging/10.0.11",
+      "hashPath": "microsoft.extensions.logging.10.0.11.nupkg.sha512"
     },
-    "Microsoft.Extensions.Primitives/10.0.10": {
+    "Microsoft.Extensions.Logging.Abstractions/10.0.11": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-5wu/GrYVd8mG2DVUw3vFJzF+O336TyTGg/Kmcgw9bfwYhCoFiV5lR5QeEmKecJyrW4W54nMfD3p3589E8a7czQ==",
-      "path": "microsoft.extensions.primitives/10.0.10",
-      "hashPath": "microsoft.extensions.primitives.10.0.10.nupkg.sha512"
+      "sha512": "sha512-Ljd0Uxoq5XpScD2Bg0nM/r3mwx7Ao5Uq24eo2ARxbGvqJ7Zht6rt2cJtwVRH4Cv+1ZVMdXz6TB43KbpmsxRrvQ==",
+      "path": "microsoft.extensions.logging.abstractions/10.0.11",
+      "hashPath": "microsoft.extensions.logging.abstractions.10.0.11.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Options/10.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-eY1GAKcTfD2maP27J84X9IovT3yjHJ2dVDzPmDg6/XqYvt3jMzJhtfQCLjG9pVsZGAd+8DQ2QrjaDcs2+VQLGw==",
+      "path": "microsoft.extensions.options/10.0.11",
+      "hashPath": "microsoft.extensions.options.10.0.11.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Primitives/10.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-SXcz+kF+4Oo9b1+55zntpJFYfwb1jw66ioxptyNOOTDc8g2FHnBFWjZpsWfCvZIhzr0x+4e2trVTs4OKwQfBtw==",
+      "path": "microsoft.extensions.primitives/10.0.11",
+      "hashPath": "microsoft.extensions.primitives.10.0.11.nupkg.sha512"
     },
     "Microsoft.IO.RecyclableMemoryStream/3.0.1": {
       "type": "package",
@@ -1264,12 +1447,12 @@
       "path": "skiasharp.harfbuzz/2.88.9",
       "hashPath": "skiasharp.harfbuzz.2.88.9.nupkg.sha512"
     },
-    "SkiaSharp.NativeAssets.Linux/3.119.4": {
+    "SkiaSharp.NativeAssets.Linux/4.151.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-UAyVzbqNfZsZbKbzj68zXLyUyF/SbTKmzTfOO6qDu++dtIUMMTzPBe8oOuzU/DiewpfKoUUlOSsJmqWc6blxBw==",
-      "path": "skiasharp.nativeassets.linux/3.119.4",
-      "hashPath": "skiasharp.nativeassets.linux.3.119.4.nupkg.sha512"
+      "sha512": "sha512-4FM5fSV6W3nMOeawrxkgu3sf3uWUfQEizZ+ww6kcByf9XERiSbZftf5dyJxOUFDLcrtj9aslN2Jb7uZsO/lfWw==",
+      "path": "skiasharp.nativeassets.linux/4.151.1",
+      "hashPath": "skiasharp.nativeassets.linux.4.151.1.nupkg.sha512"
     },
     "SkiaSharp.NativeAssets.macOS/4.151.1": {
       "type": "package",
