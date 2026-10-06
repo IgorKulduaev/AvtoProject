@@ -1,0 +1,145 @@
+@AutoSalesApi_HostAddress = http://localhost:5103
+
+### Список поставщиков (постранично, кэш 5 сек)
+GET {{AutoSalesApi_HostAddress}}/api/producer?page=1
+Accept: application/json
+
+### Все поставщики
+GET {{AutoSalesApi_HostAddress}}/api/producer/all
+Accept: application/json
+
+### Поставщик по id
+GET {{AutoSalesApi_HostAddress}}/api/producer/1
+Accept: application/json
+
+### Создать поставщика
+POST {{AutoSalesApi_HostAddress}}/api/producer
+Content-Type: application/json
+
+{
+  "companyCode": "NEW001",
+  "companyName": "Новый поставщик",
+  "phone": "8-800-000-00-00",
+  "email": "info@example.ru",
+  "website": "www.example.ru"
+}
+
+### Обновить поставщика
+PUT {{AutoSalesApi_HostAddress}}/api/producer/1
+Content-Type: application/json
+
+{
+  "producerId": 1,
+  "companyCode": "AVP001",
+  "companyName": "АвтоПлюс",
+  "phone": "8-495-123-45-67",
+  "email": "info@avtoplus.ru",
+  "website": "www.avtoplus.ru"
+}
+
+### Удалить поставщика
+DELETE {{AutoSalesApi_HostAddress}}/api/producer/6
+
+### Все модели (с прейскурантом)
+GET {{AutoSalesApi_HostAddress}}/api/model/all
+Accept: application/json
+
+### Модель по id
+GET {{AutoSalesApi_HostAddress}}/api/model/1
+Accept: application/json
+
+### Создать модель вместе с прейскурантом и связями с поставщиками
+POST {{AutoSalesApi_HostAddress}}/api/model/with-details
+Content-Type: application/json
+
+{
+  "model": {
+    "modelCode": "NEW100",
+    "modelName": "Тест Модель",
+    "color": "Зелёный",
+    "upholstery": "Ткань",
+    "motorPower": "100 кВт",
+    "doorCount": 4,
+    "transmission": "механическая"
+  },
+  "priceList": {
+    "yearOfManufacture": 2026,
+    "price": 30000,
+    "prepCost": 500,
+    "transportCost": 700
+  },
+  "producerIds": [1, 2]
+}
+
+### Обновить связи модели с поставщиками
+PUT {{AutoSalesApi_HostAddress}}/api/model/1/offers
+Content-Type: application/json
+
+{
+  "producerIds": [1, 5]
+}
+
+### Все клиенты
+GET {{AutoSalesApi_HostAddress}}/api/client/all
+Accept: application/json
+
+### Создать клиента
+POST {{AutoSalesApi_HostAddress}}/api/client
+Content-Type: application/json
+
+{
+  "fio": "Иванов Иван Иванович",
+  "phone": "8-495-111-22-33",
+  "address": "Москва"
+}
+
+### Прейскурант (строки с названием модели и полной стоимостью)
+GET {{AutoSalesApi_HostAddress}}/api/pricelist
+Accept: application/json
+
+### Добавить прейскурант (связь 1:1 с моделью)
+POST {{AutoSalesApi_HostAddress}}/api/pricelist
+Content-Type: application/json
+
+{
+  "modelId": 7,
+  "yearOfManufacture": 2026,
+  "price": 30000,
+  "prepCost": 500,
+  "transportCost": 700
+}
+
+### Продажи (строки с ФИО клиента и названием модели)
+GET {{AutoSalesApi_HostAddress}}/api/order
+Accept: application/json
+
+### Модели с ценой (для формы продажи)
+GET {{AutoSalesApi_HostAddress}}/api/order/models-with-price
+Accept: application/json
+
+### Следующий номер договора
+GET {{AutoSalesApi_HostAddress}}/api/order/next-number
+Accept: application/json
+
+### Оформить продажу (TotalCost = 0 -> рассчитывается по прейскуранту)
+POST {{AutoSalesApi_HostAddress}}/api/order
+Content-Type: application/json
+
+{
+  "orderNumber": "Д100",
+  "clientId": 1,
+  "modelId": 2,
+  "totalCost": 0
+}
+
+### Список отчётов
+GET {{AutoSalesApi_HostAddress}}/api/report
+Accept: application/json
+
+### Отчёт по индексу (0..4)
+GET {{AutoSalesApi_HostAddress}}/api/report/0
+Accept: application/json
+
+### Отчёт по имени
+GET {{AutoSalesApi_HostAddress}}/api/report/by-name?name=Доходность по моделям
+Accept: application/json

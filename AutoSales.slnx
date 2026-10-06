@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="AutoSalesApp/AutoSalesApp.csproj" />
+  <Project Path="AutoSalesApi/AutoSalesApi.csproj" />
+</Solution>
